@@ -27,10 +27,10 @@
             --primary: #2563eb; 
             --bg: #f8fafc;
             --header-h: 155px;        
-            --cell-h: 82px;           
-            --font-base: 0.95rem;     
-            --font-small: 0.75rem;    
-            --th-h: 44px;             
+            --cell-h: 82px;            
+            --font-base: 0.95rem;      
+            --font-small: 0.75rem;     
+            --th-h: 44px;              
             
             /* --- PALETTE COLORI ORIGINALI --- */
             
@@ -95,6 +95,7 @@
             display: flex; align-items: center; gap: 6px; transition: 0.2s;
         }
         .btn-action:active { transform: scale(0.96); }
+        .btn-dinner { background: #fff7ed; color: #ea580c; border-color: #ffedd5; }
         
         /* SCROLLERS */
         .nav-scroller, .driver-scroller { flex: 1; display: flex; gap: 8px; overflow-x: auto; padding: 0 16px; align-items: center; scrollbar-width: none; }
@@ -125,23 +126,22 @@
         }
         thead th:first-child, .td-date { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
 
-        /* --- MODIFICA 1: Barra Mese Sottile ma Testo Grande --- */
         tr.month-header td {
             background: var(--primary); color: white; font-weight: 800; 
-            font-size: 1.5rem; /* Testo Grande */
+            font-size: 1.5rem;
             text-transform: uppercase; letter-spacing: 0px;
             position: sticky; top: calc(var(--header-h) + var(--th-h)); z-index: 85; 
             box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15); transition: top 0.3s ease; 
             padding: 0; border: none;
-            line-height: 1.2; /* Riduce l'altezza della riga */
+            line-height: 1.2;
         }
         .sticky-month-text { 
             position: sticky; left: 0; width: 100vw; 
             text-align: left; 
-            padding: 4px 0 4px 12px; /* Padding minimo per barra sottile */
+            padding: 4px 0 4px 12px;
             display: flex; 
-            align-items: baseline; /* Allinea testo e ora sulla base */
-            gap: 12px; /* Spazio tra Mese e Ora */
+            align-items: baseline;
+            gap: 12px;
         }
 
         tbody td { 
@@ -208,10 +208,10 @@
         body.desktop-view .driver-scroller { display: none; }
 
         /* MODALE TURNI */
-        #shift-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 3000; backdrop-filter: blur(4px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
-        #shift-modal.open { opacity: 1; }
+        #shift-modal, #dinner-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 3000; backdrop-filter: blur(4px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        #shift-modal.open, #dinner-modal.open { opacity: 1; }
         .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2); overflow: hidden; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); max-height: 80vh; display: flex; flex-direction: column; }
-        #shift-modal.open .modal-content { transform: translateY(0); }
+        #shift-modal.open .modal-content, #dinner-modal.open .modal-content { transform: translateY(0); }
         .modal-header { background: var(--bg); color: #0f172a; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
         .header-text h3 { margin: 0; font-size: 1.4rem; font-weight: 900; color: #1e293b; display: flex; align-items: center; gap: 10px;}
         .header-text span { display: block; font-size: 0.9rem; font-weight: 600; color: #64748b; margin-top: 4px;}
@@ -225,7 +225,27 @@
         .modal-theme-N .modal-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); } .modal-theme-N .header-text h3 { color: white; } .modal-theme-N .header-text span { color: #94a3b8; } .modal-theme-N .btn-close-modal { background: #334155; color: white; } .modal-theme-N .c-time { background: #f1f5f9; color: #0f172a; }
         .modal-theme-R .modal-header { background: linear-gradient(135deg, #dcfce7 0%, #ecfdf5 100%); } .modal-theme-R .header-text h3 { color: #064e3b; } .modal-theme-R .c-time { background: #dcfce7; color: #15803d; }
 
-        /* MODALE STATISTICHE (Non più in uso ma mantenuto se servisse in futuro) */
+        /* STILI PER IL MODALE CENA */
+        .dinner-checkbox-list { padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .dinner-check-item { background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 700; color: #475569; }
+        .dinner-check-item.checked { background: #eff6ff; border-color: var(--primary); color: var(--primary); }
+        .dinner-check-item input { display: none; }
+        .dinner-check-icon { width: 20px; height: 20px; border-radius: 4px; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; }
+        .dinner-check-item.checked .dinner-check-icon { background: var(--primary); border-color: var(--primary); color: white; }
+        
+        .dinner-section-title { font-size: 0.8rem; font-weight: 800; color: #94a3b8; padding: 15px 20px 5px; text-transform: uppercase; }
+        .month-selector { display: flex; overflow-x: auto; gap: 8px; padding: 10px 20px; scrollbar-width: none; }
+        .btn-find-dinner { margin: 20px; background: #0f172a; color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 800; font-size: 1rem; width: calc(100% - 40px); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-find-dinner:active { transform: scale(0.98); }
+        
+        .dinner-result-card { background: white; margin: 10px 20px; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .d-res-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 10px; }
+        .d-res-date { font-weight: 800; font-size: 1.1rem; color: #1e293b; }
+        .d-res-score { background: #dcfce7; color: #15803d; font-weight: 700; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; }
+        .missing-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .missing-badge { background: #fee2e2; color: #b91c1c; font-size: 0.7rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; }
+        
+        /* MODALE STATISTICHE */
         #stats-modal { display: none; position: fixed; inset: 0; background: white; z-index: 4000; flex-direction: column; overflow: hidden; }
         #stats-modal.open { display: flex; }
         .stats-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; background: #fff; }
@@ -280,6 +300,45 @@
         </div>
     </div>
 
+    <div id="dinner-modal" onclick="closeDinnerModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()" style="height:90vh; max-height:90vh;">
+            <div class="modal-header" style="background:#fff7ed; border-bottom-color:#ffedd5;">
+                <div class="header-text">
+                    <h3 style="color:#ea580c"><span class="material-icons-round">restaurant</span> ORGANIZZA CENA</h3>
+                    <span style="color:#fb923c">Trova la serata migliore</span>
+                </div>
+                <button class="btn-close-modal" onclick="closeDinnerModal()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="modal-body" style="background:#fff; display:flex; flex-direction:column; height:100%;">
+                
+                <div id="dinner-step-1">
+                    <div class="dinner-section-title">1. SELEZIONA MESE</div>
+                    <div class="month-selector" id="dinner-month-list"></div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-right:20px;">
+                        <div class="dinner-section-title">2. SELEZIONA COLLEGHI</div>
+                        <button onclick="toggleAllDrivers()" style="background:none; border:none; color:var(--primary); font-weight:bold; cursor:pointer; font-size:0.8rem;">Tutti/Nessuno</button>
+                    </div>
+                    <div class="dinner-checkbox-list" id="dinner-driver-list"></div>
+
+                    <button class="btn-find-dinner" onclick="calculateDinner()">
+                        <span class="material-icons-round">search</span> TROVA SERATA MIGLIORE
+                    </button>
+                </div>
+
+                <div id="dinner-step-2" style="display:none; padding-bottom:30px;">
+                    <div style="padding:10px 20px; display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="resetDinnerStep()">
+                        <span class="material-icons-round">arrow_back</span> <span style="font-weight:700">Torna indietro</span>
+                    </div>
+                    <div id="dinner-results-container"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div id="stats-modal">
         <div class="stats-header">
             <h3 style="margin:0; font-size:1.2rem; color:#1e293b;">STATISTICHE</h3>
@@ -298,6 +357,9 @@
                 TURNI AUTISTI 2026
             </div>
             <div class="right-controls">
+                <button class="btn-action btn-dinner" onclick="openDinnerModal()">
+                    <span class="material-icons-round">restaurant</span>
+                </button>
                 <button class="btn-action btn-view" onclick="toggleView()" id="view-btn">
                     <span class="material-icons-round">smartphone</span>
                 </button>
@@ -667,7 +729,7 @@
             let list = document.getElementById('modal-list');
             let title = document.getElementById('modal-title');
             let sub = document.getElementById('modal-subtitle');
-            let modalContent = document.querySelector('.modal-content');
+            let modalContent = document.querySelector('#shift-modal .modal-content');
             
             modalContent.classList.remove('modal-theme-M', 'modal-theme-P', 'modal-theme-N', 'modal-theme-R');
             modalContent.classList.add('modal-theme-' + shiftType);
@@ -721,6 +783,166 @@
             let modal = document.getElementById('shift-modal');
             modal.classList.remove('open');
             setTimeout(() => { modal.style.display = 'none'; }, 200);
+        }
+
+        /* --- LOGICA MODALE CENA --- */
+        let dinnerSelectedMonth = "";
+        
+        function openDinnerModal() {
+            let modal = document.getElementById('dinner-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('open'), 10);
+            
+            resetDinnerStep();
+
+            // Popola Mesi
+            let mList = document.getElementById('dinner-month-list');
+            mList.innerHTML = "";
+            let months = Object.keys(MONTH_MAP);
+            months.forEach(m => {
+                let c = document.createElement('div');
+                c.className = "chip chip-month";
+                c.innerText = m.substr(0,3);
+                c.onclick = () => {
+                    document.querySelectorAll('#dinner-month-list .chip-month').forEach(x => x.classList.remove('active'));
+                    c.classList.add('active');
+                    dinnerSelectedMonth = m;
+                };
+                mList.appendChild(c);
+            });
+            // Seleziona mese corrente di default
+            if(!dinnerSelectedMonth) {
+                let curMName = months[new Date().getMonth()];
+                // Simulo click
+                let chips = mList.getElementsByClassName('chip-month');
+                if(chips[new Date().getMonth()]) chips[new Date().getMonth()].click();
+            }
+
+            // Popola Drivers
+            let dList = document.getElementById('dinner-driver-list');
+            if(dList.children.length === 0) { // Popola solo se vuoto
+                drivers.forEach(d => {
+                    let item = document.createElement('label');
+                    item.className = "dinner-check-item checked"; // Tutti selezionati di default
+                    item.innerHTML = `
+                        <input type="checkbox" value="${d.idx}" checked onchange="this.parentElement.classList.toggle('checked')">
+                        <div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">check</span></div>
+                        ${d.name}
+                    `;
+                    dList.appendChild(item);
+                });
+            }
+        }
+
+        function toggleAllDrivers() {
+            let checks = document.querySelectorAll('#dinner-driver-list input[type="checkbox"]');
+            let allChecked = Array.from(checks).every(c => c.checked);
+            checks.forEach(c => {
+                c.checked = !allChecked;
+                if(!allChecked) c.parentElement.classList.add('checked');
+                else c.parentElement.classList.remove('checked');
+            });
+        }
+
+        function closeDinnerModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            let modal = document.getElementById('dinner-modal');
+            modal.classList.remove('open');
+            setTimeout(() => { modal.style.display = 'none'; }, 200);
+        }
+        
+        function resetDinnerStep() {
+            document.getElementById('dinner-step-1').style.display = 'block';
+            document.getElementById('dinner-step-2').style.display = 'none';
+        }
+
+        function calculateDinner() {
+            if(!dinnerSelectedMonth) { alert("Seleziona un mese!"); return; }
+            
+            // Ottieni autisti selezionati
+            let selectedDriversIdx = [];
+            document.querySelectorAll('#dinner-driver-list input:checked').forEach(c => {
+                selectedDriversIdx.push(parseInt(c.value));
+            });
+            
+            if(selectedDriversIdx.length === 0) { alert("Seleziona almeno un collega!"); return; }
+
+            let results = [];
+            
+            // Scansiona i giorni del mese selezionato
+            for(let i=1; i<finalData.length; i++) {
+                let row = finalData[i];
+                if(row[0].v !== dinnerSelectedMonth) continue;
+                
+                let dayNum = row[1].v;
+                let mIdx = MONTH_MAP[dinnerSelectedMonth];
+                let dateObj = new Date(2026, mIdx, dayNum);
+                let dayWeek = dateObj.toLocaleDateString('it-IT', { weekday: 'long' });
+                
+                let availableCount = 0;
+                let missingNames = [];
+                
+                selectedDriversIdx.forEach(dIdx => {
+                    let cellData = row[dIdx];
+                    let val = cellData.v ? cellData.v.toString().trim().toUpperCase() : "";
+                    
+                    // LOGICA ESCLUSIONE SERA
+                    // Escludiamo Pomeriggio (P) e Notte (N) e Malattia (M)
+                    if(val.startsWith("P") || val.startsWith("N") || val === "MALATTIA" || val === "MAL" || val === "M") {
+                        // Cerca nome driver
+                        let dName = drivers.find(d => d.idx === dIdx).name;
+                        missingNames.push(dName);
+                    } else {
+                        availableCount++;
+                    }
+                });
+                
+                results.push({
+                    day: dayNum,
+                    weekDay: dayWeek,
+                    score: availableCount,
+                    total: selectedDriversIdx.length,
+                    missing: missingNames
+                });
+            }
+            
+            // Ordina: prima per punteggio (desc), poi preferenza Venerdì/Sabato
+            results.sort((a, b) => {
+                if(b.score !== a.score) return b.score - a.score;
+                // Se pari merito, preferisci Ven/Sab
+                let isWeA = (a.weekDay === "venerdì" || a.weekDay === "sabato");
+                let isWeB = (b.weekDay === "venerdì" || b.weekDay === "sabato");
+                if(isWeA && !isWeB) return -1;
+                if(!isWeA && isWeB) return 1;
+                return 0;
+            });
+            
+            // Mostra Risultati
+            let resContainer = document.getElementById('dinner-results-container');
+            resContainer.innerHTML = `<h4 style="margin:0 20px 10px; color:#64748b">MIGLIORI DATE PER ${dinnerSelectedMonth}</h4>`;
+            
+            // Prendi i primi 5
+            results.slice(0, 10).forEach(res => {
+                let div = document.createElement('div');
+                div.className = "dinner-result-card";
+                
+                let missingHtml = res.missing.length > 0 
+                    ? res.missing.map(n => `<span class="missing-badge">${n}</span>`).join("") 
+                    : "<span style='color:#15803d; font-size:0.8rem; font-weight:700'>Tutti Presenti! 🥂</span>";
+                
+                div.innerHTML = `
+                    <div class="d-res-header">
+                        <span class="d-res-date">${res.weekDay} ${res.day}</span>
+                        <span class="d-res-score">${res.score} / ${res.total}</span>
+                    </div>
+                    <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:4px;">${res.missing.length > 0 ? 'ASSENTI (Turno P o N):' : ''}</div>
+                    <div class="missing-list">${missingHtml}</div>
+                `;
+                resContainer.appendChild(div);
+            });
+            
+            document.getElementById('dinner-step-1').style.display = 'none';
+            document.getElementById('dinner-step-2').style.display = 'block';
         }
 
         // --- GESTIONE STATISTICHE ---
