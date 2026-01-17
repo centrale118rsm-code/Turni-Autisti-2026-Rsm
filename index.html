@@ -247,12 +247,28 @@
             white-space: nowrap;
         }
 
+        /* STILI TURNI */
         .t-M { background: var(--c-M); color: var(--t-M); border: 1px solid var(--b-M); }
         .t-P { background: var(--c-P); color: var(--t-P); border: 1px solid var(--b-P); }
         .t-N { background: var(--c-N); color: var(--t-N); border: 1px solid var(--b-N); }
         .t-R { background: var(--c-R); color: var(--t-R); border: 1px solid var(--b-R); }
         .t-SM { background: var(--c-SM); color: var(--t-SM); border: 1px solid var(--b-SM); }
         
+        /* --- ANIMAZIONE BORDO LAMPEGGIANTE M+N --- */
+        @keyframes border-blink {
+            0% { border-color: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { border-color: #b91c1c; box-shadow: 0 0 8px 1px rgba(239, 68, 68, 0.5); }
+            100% { border-color: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        }
+
+        .t-MN { 
+            background: linear-gradient(135deg, var(--c-M) 0%, var(--c-M) 45%, var(--c-N) 55%, var(--c-N) 100%); 
+            color: white; 
+            border: 2px solid #ef4444 !important; /* Bordo Rosso forzato */
+            animation: border-blink 1.5s infinite ease-in-out; /* Animazione Lampeggiante */
+            z-index: 10;
+        }
+
         body.dark-mode .t-M { background: #1e40af; border-color: #1e3a8a; }
         body.dark-mode .t-P { background: #3b82f6; border-color: #2563eb; }
         body.dark-mode .t-N { background: #172554; border-color: #0f172a; }
@@ -327,6 +343,7 @@
         .modal-theme-P .modal-header { background: linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%); } .modal-theme-P .header-text h3 { color: #312e81; } .modal-theme-P .c-time { background: #e0e7ff; color: #4338ca; }
         .modal-theme-N .modal-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); } .modal-theme-N .header-text h3 { color: white; } .modal-theme-N .header-text span { color: #94a3b8; } .modal-theme-N .btn-close-modal { background: #334155; color: white; } .modal-theme-N .c-time { background: #f1f5f9; color: #0f172a; }
         .modal-theme-R .modal-header { background: linear-gradient(135deg, #dcfce7 0%, #ecfdf5 100%); } .modal-theme-R .header-text h3 { color: #064e3b; } .modal-theme-R .c-time { background: #dcfce7; color: #15803d; }
+        .modal-theme-MN .modal-header { background: linear-gradient(135deg, #026bfe 0%, #003785 100%); } .modal-theme-MN .header-text h3 { color: white; } .modal-theme-MN .header-text span { color: #e2e8f0; } .modal-theme-MN .btn-close-modal { background: rgba(255,255,255,0.2); color: white; }
 
         /* MODALE CENA */
         .dinner-checkbox-list { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -663,11 +680,7 @@
 
         function nextSecretPhoto() {
             galleryIdx++;
-            // Se vuoi ciclare fino a quando esistono file, servirebbe un server.
-            // Qui assumiamo un numero massimo fissato (es. 10)
-            // Se vuoi che ricominci da 1:
             if(galleryIdx > TOTAL_SECRET_PHOTOS) galleryIdx = 1;
-            
             const img = document.getElementById('secret-img');
             img.style.opacity = '0.5';
             setTimeout(() => {
@@ -1076,7 +1089,7 @@
                     
                     let rawVal = cellInfo.v ? cellInfo.v.toString().trim() : "";
                     let shiftType = normalizeShift(rawVal);
-                    if(["M", "P", "N", "R"].includes(shiftType)) {
+                    if(["M", "P", "N", "R", "MN"].includes(shiftType)) {
                         td.onclick = () => openShiftModal(i, shiftType, mName, dNum, dayWeek);
                     }
                     tr.appendChild(td);
@@ -1106,6 +1119,7 @@
 
         function normalizeShift(val) {
             let u = val.toUpperCase();
+            if(u === "M+N" || u === "M + N") return "MN"; // Riconoscimento M+N
             if(u === "M" || u.startsWith("MAT") || u === "M/R") return "M";
             if(u === "P" || u.startsWith("POM")) return "P";
             if(u === "N" || u.startsWith("NOT")) return "N";
@@ -1121,7 +1135,7 @@
             let sub = document.getElementById('modal-subtitle');
             let modalContent = document.querySelector('#shift-modal .modal-content');
             
-            modalContent.classList.remove('modal-theme-M', 'modal-theme-P', 'modal-theme-N', 'modal-theme-R');
+            modalContent.classList.remove('modal-theme-M', 'modal-theme-P', 'modal-theme-N', 'modal-theme-R', 'modal-theme-MN');
             modalContent.classList.add('modal-theme-' + shiftType);
             list.innerHTML = "";
             
@@ -1131,6 +1145,7 @@
             if(shiftType === "P") { fullShiftName = "POMERIGGIO"; iconHtml = '<span class="material-icons-round">wb_twilight</span>'; }
             if(shiftType === "N") { fullShiftName = "NOTTE"; iconHtml = '<span class="material-icons-round">bedtime</span>'; }
             if(shiftType === "R") { fullShiftName = "RIPOSO"; iconHtml = '<span class="material-icons-round">weekend</span>'; }
+            if(shiftType === "MN") { fullShiftName = "MATTINA + NOTTE"; iconHtml = '<span class="material-icons-round">schedule</span>'; }
 
             title.innerHTML = `${iconHtml} ${fullShiftName}`;
             sub.innerText = `${weekDay} ${day} ${month}`;
@@ -1151,7 +1166,8 @@
                     else time = SCHEDULE[val] || SCHEDULE[val.toUpperCase()] || SCHEDULE[val.charAt(0).toUpperCase()] || "";
 
                     if(shiftType === "R") time = "Riposo"; 
-                    
+                    if(shiftType === "MN") time = "6:30-13:15 + 19:45-00:00"; // Orario doppio
+
                     let isRep = (val.toLowerCase().includes("/r") || val === "M/R");
                     let repTag = isRep ? `<span class="rep-badge" style="margin-left:8px">REP</span>` : "";
 
@@ -1540,6 +1556,14 @@
             let subColor = info.subC || ""; 
             let u = val.toUpperCase();
             let subVal = info.subV ? info.subV.toString().trim().toUpperCase() : "";
+
+            if(u === "M+N" || u === "M + N") {
+                 return `<div class="cell t-MN">
+                            <div>MAT+NOT</div>
+                            <div class="time-tag">6:30-13:15</div>
+                            <div class="time-tag">19:45-00:00</div>
+                        </div>`;
+            }
 
             if(u === "NL" || subVal === "NL") return renderSpecial("FESTIVO<br>NON LAVORATO", "spec-nl");
 
