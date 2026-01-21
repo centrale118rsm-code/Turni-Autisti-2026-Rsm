@@ -35,10 +35,10 @@
             --header-bg: rgba(255, 255, 255, 0.92);
             
             --header-h: 155px;        
-            --cell-h: 60px;                 
+            --cell-h: 60px;                  
             --font-base: 0.85rem;        
             --font-small: 0.7rem;        
-            --th-h: 40px;                 
+            --th-h: 40px;                  
             
             /* --- COLORI TURNI (Base) --- */
             --c-M: #026bfe; --t-M: #ffffff; --b-M: #bae6fd;
@@ -222,22 +222,13 @@
         .td-date.date-red { color: #dc2626; background: #fef2f2; border-right-color: #fca5a5; }
         .td-date.date-red small { color: #ef4444; }
         
-        /* NUOVA CLASSE PER MALATTIA ACCESA (Richiesta utente) */
-        .td-date.date-alarm { background: #ff0000 !important; color: #ffffff !important; border-right: 2px solid #991b1b !important; }
-        .td-date.date-alarm small { color: #fee2e2 !important; }
-
         /* Dark mode red overrides */
         body.dark-mode .td-date.date-red { background: #450a0a; color: #fca5a5; border-right-color: #7f1d1d; }
         body.dark-mode .td-date.date-red small { color: #fecaca; }
-        /* Dark mode alarm override */
-        body.dark-mode .td-date.date-alarm { background: #7f1d1d !important; color: #ffffff !important; border-right-color: #991b1b !important; }
 
         .holiday-name { font-size: 0.55rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 3px; max-width: 55px; white-space: normal; }
         body.dark-mode .holiday-name { color: #f87171; }
         
-        /* Override testo vacanza su sfondo rosso acceso */
-        .td-date.date-alarm .holiday-name { color: white !important; opacity: 0.9; }
-
         .cell { 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             height: 100%; width: 100%; border-radius: 10px; font-weight: 800; 
@@ -1136,7 +1127,7 @@
             for(let i=1; i<finalData.length; i++) {
                 let row = finalData[i];
                 let month = row[0].v;   
-                let day = row[1].v;      
+                let day = row[1].v;       
                 if(!day || !month) continue;
 
                 let dateKey = `${month}-${day}`; 
@@ -1428,19 +1419,8 @@
                 let holKey = `${mIdx}-${dNum}`;
                 let holidayName = HOLIDAYS[holKey];
                 
-                // CONTROLLO MALATTIA NELLA RIGA PER COLORARE LA DATA
-                let hasMalattiaInRow = false;
-                // Controllo tutti gli autisti nella riga originale (dal 3 in poi)
-                for(let x=2; x < row.length; x++) {
-                     if(row[x] && row[x].subV && row[x].subV.toString().trim() === "m") {
-                         hasMalattiaInRow = true;
-                         break;
-                     }
-                }
-
                 let isRed = (dayIdx === 0 || dayIdx === 6 || holidayName);
                 let dateClass = isRed ? "td-date date-red" : "td-date";
-                if(hasMalattiaInRow) dateClass += " date-alarm"; // Applica rosso acceso
                 
                 if(mIdx === curM && dNum === curD && today.getFullYear() === year) {
                     tr.className = "today";
@@ -1941,7 +1921,11 @@
             if(u === "NL" || subVal === "NL") return renderSpecial("FESTIVO<br>NON LAVORATO", "spec-nl");
 
             if(subVal === "NG") return renderSpecial("FESTIVO<br>NON GODUTO", "spec-blue");
-            if(subVal === "M") return renderSpecial("MALATTIA", "spec-red");
+            
+            // --- MODIFICA RICHIESTA: SE MALATTIA, METTI ROSSO QUI ---
+            if(subVal === "M" || subVal === "MALATTIA" || subVal === "MAL" || u === "MALATTIA" || u === "MAL") {
+                return renderSpecial("MALATTIA", "spec-red");
+            }
             
             // NUOVO: K = DISTACCO SPECIALE
             if(subVal === "K" || u === "K") return renderSpecial("DISTACCO<br>SPECIALE", "spec-purple");
