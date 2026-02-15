@@ -492,14 +492,106 @@
         }
         .btn-alert-ok:active { transform: scale(0.98); }
 
-        /* Dark mode overrides per l'alert */
-        body.dark-mode .alert-header { background: #451a03; border-color: #78350f; }
-        body.dark-mode .alert-icon-box { background: #78350f; border-color: #92400e; color: #fbbf24; }
-        body.dark-mode .alert-title { color: #fbbf24; }
+        /* --- STILE ICONA CANE --- */
+        .dog-icon {
+            position: absolute;
+            top: -5px;      /* Sporge un po' fuori */
+            right: -5px;    /* Sporge un po' fuori */
+            width: 28px;    /* Dimensione dell'immagine */
+            height: 28px;
+            z-index: 5;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); /* Ombra per staccare dal fondo */
+        }
+
+        /* --- STILE ICONA AMBULANZA (NUOVO) --- */
+        .ambulance-icon {
+            position: absolute;
+            bottom: -5px;   /* Angolo opposto al cane */
+            right: -5px;
+            width: 24px;
+            height: 24px;
+            z-index: 6;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+            cursor: pointer;
+        }
+
+        /* --- STILI MINIGIOCO (LAVAGGIO) --- */
+        #game-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 5000; flex-direction: column; align-items: center; justify-content: center; }
+        #game-modal.open { display: flex; }
+        
+        #game-wrapper {
+            background: #f0f8ff; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative;
+        }
+        
+        #game-container-box {
+            position: relative;
+            width: 95vw; max-width: 600px;
+            aspect-ratio: 16/9;
+            background-image: url('ambulanza_bg.png'); /* FILE DA CARICARE */
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            background-color: white;
+            border: 5px solid white; border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        #dirtCanvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 15px; cursor: crosshair; touch-action: none;
+        }
+        
+        .game-ui { margin-top: 20px; text-align: center; z-index: 5; width: 100%; }
+        
+        .game-progress-bar {
+            width: 200px; height: 15px; background: #ddd;
+            border-radius: 10px; margin: 10px auto; overflow: hidden;
+        }
+        
+        #game-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); transition: width 0.2s; }
+        
+        .game-btn {
+            padding: 12px 25px; background: #005eb8; color: white; border: none;
+            border-radius: 50px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            font-size: 1rem; cursor: pointer;
+        }
+        
+        .game-close-btn {
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(255,255,255,0.3); color: black;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; cursor: pointer; z-index: 10;
+        }
+
+        .bubble {
+            position: absolute; background: rgba(173, 216, 230, 0.6);
+            border: 1px solid white; border-radius: 50%;
+            pointer-events: none; animation: floatUp 1s ease-out forwards;
+        }
+        @keyframes floatUp { to { transform: translateY(-50px) scale(1.5); opacity: 0; } }
         
     </style>
 </head>
 <body>
+
+    <audio id="dog-audio" src="cane.mp3" preload="auto"></audio>
+
+    <div id="game-modal">
+        <div id="game-wrapper">
+            <div class="game-close-btn" onclick="closeGameModal()">X</div>
+            <h2 style="color: #005eb8; margin-top:0;"> Lava l'Ambulanza moncappato! </h2>
+            
+            <div id="game-container-box">
+                <canvas id="dirtCanvas"></canvas>
+            </div>
+
+            <div class="game-ui">
+                <div class="game-progress-bar"><div id="game-fill"></div></div>
+                <button class="game-btn" onclick="resetGame()">Ricomincia</button>
+            </div>
+        </div>
+    </div>
 
     <div id="alert-modal">
         <div class="alert-card">
@@ -763,13 +855,122 @@
         let finalData = [];
         let drivers = [];
         let selectedDrivers = new Set();
-        let notifHistory = []; // Array per le notifiche
+        let notifHistory = []; 
+        let ambulanceMap = {}; // Mappa { "NomeAutista-Mese": "Giorno" }
         
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
         });
+        
+        // --- FUNZIONE SUONO CANE ---
+        function playDogSound(event) {
+            event.stopPropagation();
+            const audioEl = document.getElementById('dog-audio');
+            if (audioEl) {
+                audioEl.currentTime = 0;
+                audioEl.play().catch(e => console.log(e));
+            }
+            if(navigator.vibrate) navigator.vibrate(200);
+        }
+
+        // --- GESTIONE MINIGIOCO AMBULANZA ---
+        let gameCanvas, gameCtx, isGameRunning = false, pointsCleaned = 0, totalToClean = 2000;
+
+        function openGameModal(e) {
+            e.stopPropagation(); // Evita apertura modale turno
+            vibrate();
+            
+            const modal = document.getElementById('game-modal');
+            modal.classList.add('open');
+            isGameRunning = true;
+            
+            // Inizializza Canvas dopo che è visibile
+            setTimeout(initGame, 100);
+        }
+
+        function closeGameModal() {
+            document.getElementById('game-modal').classList.remove('open');
+            isGameRunning = false;
+        }
+
+        function initGame() {
+            gameCanvas = document.getElementById('dirtCanvas');
+            gameCtx = gameCanvas.getContext('2d');
+            const containerBox = document.getElementById('game-container-box');
+            
+            gameCanvas.width = containerBox.offsetWidth;
+            gameCanvas.height = containerBox.offsetHeight;
+            
+            // Sporco
+            gameCtx.fillStyle = '#6d4c41'; 
+            gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+            
+            // Testo
+            gameCtx.globalCompositeOperation = 'source-over';
+            gameCtx.fillStyle = 'rgba(255,255,255,0.5)';
+            gameCtx.font = 'bold 24px Arial';
+            gameCtx.textAlign = 'center';
+            gameCtx.fillText("TRASCINA PER PULIRE", gameCanvas.width/2, gameCanvas.height/2);
+            
+            pointsCleaned = 0;
+            document.getElementById('game-fill').style.width = '0%';
+            
+            // Event Listeners
+            gameCanvas.addEventListener('mousedown', () => isGameCleaning = true);
+            window.addEventListener('mouseup', () => isGameCleaning = false);
+            gameCanvas.addEventListener('mousemove', handleGameMove);
+            
+            gameCanvas.addEventListener('touchstart', (e) => { isGameCleaning = true; handleGameMove(e); }, {passive:false});
+            gameCanvas.addEventListener('touchend', () => isGameCleaning = false);
+            gameCanvas.addEventListener('touchmove', (e) => { handleGameMove(e); e.preventDefault(); }, {passive: false});
+        }
+
+        let isGameCleaning = false;
+
+        function handleGameMove(e) {
+            if (!isGameCleaning || !isGameRunning) return;
+            
+            const rect = gameCanvas.getBoundingClientRect();
+            const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+
+            // Cancella sporco
+            gameCtx.globalCompositeOperation = 'destination-out';
+            gameCtx.beginPath();
+            gameCtx.arc(x, y, 30, 0, Math.PI * 2);
+            gameCtx.fill();
+
+            // Effetto bolle
+            if (Math.random() > 0.8) createGameBubble(x, y);
+
+            // Update progress
+            pointsCleaned++;
+            let percent = Math.min((pointsCleaned / totalToClean) * 100, 100);
+            document.getElementById('game-fill').style.width = percent + '%';
+            
+            if(percent >= 100) {
+                gameCtx.clearRect(0,0,gameCanvas.width, gameCanvas.height);
+            }
+        }
+
+        function createGameBubble(x, y) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const size = Math.random() * 20 + 10;
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = x + 'px';
+            bubble.style.top = y + 'px';
+            document.getElementById('game-container-box').appendChild(bubble);
+            setTimeout(() => bubble.remove(), 1000);
+        }
+
+        function resetGame() {
+            gameCtx.globalCompositeOperation = 'source-over';
+            initGame();
+        }
 
         // --- SECRET GALLERY LOGIC ---
         let logoClicks = 0;
@@ -1057,15 +1258,72 @@
             }
             
             initNotificationOptions();
-            loadNotificationHistory(); // Carica notifiche salvate
+            loadNotificationHistory(); 
+            
+            // CALCOLA DATE AMBULANZA PRIMA DEL RENDER
+            calculateAmbulanceDates();
+            
             renderTable();
             startLiveClock();
             setTimeout(scrollToToday, 600);
-            
             setTimeout(checkForScheduleChanges, 2000);
         }
 
-        /* --- GESTIONE NOTIFICHE CAMBIO TURNO E CENTRO NOTIFICHE --- */
+        /* --- LOGICA AMBULANZA RANDOM --- */
+        function calculateAmbulanceDates() {
+            // Recupera mappa salvata
+            let storedMap = localStorage.getItem('ambulance_dates_map');
+            if (storedMap) {
+                ambulanceMap = JSON.parse(storedMap);
+            }
+
+            // Mese corrente del loop
+            let currentM = "";
+            
+            // Raggruppa i giorni per autista e mese
+            // Struttura: tempMap[DriverIdx][Mese] = [array di giorni con turno M]
+            let tempMap = {};
+
+            for (let i = 1; i < finalData.length; i++) {
+                let row = finalData[i];
+                let month = row[0].v;
+                let day = row[1].v;
+                if (!month || !day) continue;
+
+                drivers.forEach(d => {
+                    let cellData = row[d.idx];
+                    let val = cellData.v ? cellData.v.toString().trim() : "";
+                    if (normalizeShift(val) === "M") {
+                        if (!tempMap[d.idx]) tempMap[d.idx] = {};
+                        if (!tempMap[d.idx][month]) tempMap[d.idx][month] = [];
+                        tempMap[d.idx][month].push(day);
+                    }
+                });
+            }
+
+            // Assegna date se mancano
+            let hasChanges = false;
+            for (let dIdx in tempMap) {
+                for (let month in tempMap[dIdx]) {
+                    let key = `${dIdx}-${month}`; // Chiave univoca: IDAutista-Mese
+                    if (!ambulanceMap[key]) {
+                        // Seleziona un giorno a caso tra quelli disponibili
+                        let availableDays = tempMap[dIdx][month];
+                        if (availableDays.length > 0) {
+                            let randomDay = availableDays[Math.floor(Math.random() * availableDays.length)];
+                            ambulanceMap[key] = randomDay;
+                            hasChanges = true;
+                        }
+                    }
+                }
+            }
+
+            if (hasChanges) {
+                localStorage.setItem('ambulance_dates_map', JSON.stringify(ambulanceMap));
+            }
+        }
+
+        /* --- GESTIONE NOTIFICHE --- */
         let watchedDrivers = new Set();
 
         function initNotificationOptions() {
@@ -1127,7 +1385,7 @@
             for(let i=1; i<finalData.length; i++) {
                 let row = finalData[i];
                 let month = row[0].v;   
-                let day = row[1].v;       
+                let day = row[1].v;        
                 if(!day || !month) continue;
 
                 let dateKey = `${month}-${day}`; 
@@ -1165,7 +1423,6 @@
                         let oldShiftName = getShiftReadableName(oldShiftCode);
                         let newShiftName = getShiftReadableName(newShiftCode);
 
-                        // Crea messaggio dettagliato per popup e centro notifiche
                         let detailMsg = `<b>${drvName}</b> - ${datePart}<br>
                                          <span style="font-size:0.85rem; color:var(--text-sec)">
                                          Da: <b style="color:#ef4444">${oldShiftName}</b> &rarr; A: <b style="color:#15803d">${newShiftName}</b>
@@ -1173,21 +1430,20 @@
 
                         changesFound.push(detailMsg);
                         
-                        // Aggiungi alla storia notifiche
                         let notifObj = {
-                            id: Date.now() + Math.random(), // ID unico
+                            id: Date.now() + Math.random(),
                             text: detailMsg,
                             read: false,
                             date: new Date().toLocaleString()
                         };
-                        notifHistory.unshift(notifObj); // Aggiungi in cima
+                        notifHistory.unshift(notifObj);
                     }
                 }
 
                 if(changesFound.length > 0) {
-                    saveNotifications(); // Salva array nel localStorage
-                    updateBadge();       // Accendi il pallino
-                    showChangeAlert(changesFound); // Mostra il popup
+                    saveNotifications(); 
+                    updateBadge();       
+                    showChangeAlert(changesFound);
                 }
             }
             localStorage.setItem('schedule_snapshot', JSON.stringify(currentSnapshot));
@@ -1221,11 +1477,7 @@
             let modal = document.getElementById('notif-center-modal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('open'), 10);
-            
-            // Renderizza la lista
             renderNotifList();
-            
-            // Segna tutte come lette dopo 1 secondo che è aperto
             setTimeout(() => {
                 notifHistory.forEach(n => n.read = true);
                 saveNotifications();
@@ -1435,15 +1687,43 @@
                 
                 tr.innerHTML = `<td class="${dateClass}">${dateHtml}</td>`;
 
+                // Conteggio autisti per turno
+                let countM = 0;
+                let countP = 0;
+
+                drivers.forEach(dr => {
+                    let cellData = row[dr.idx];
+                    let val = cellData.v ? cellData.v.toString().trim() : "";
+                    let sType = normalizeShift(val);
+                    if(sType === "M") countM++;
+                    if(sType === "P") countP++;
+                });
+
                 cols.forEach(d => {
                     let cellInfo = row[d.idx];
                     let td = document.createElement('td');
-                    td.innerHTML = formatCell(cellInfo);
                     
-                    let rawVal = cellInfo.v ? cellInfo.v.toString().trim() : "";
-                    let shiftType = normalizeShift(rawVal);
-                    if(["M", "P", "N", "R", "MN"].includes(shiftType)) {
-                        td.onclick = () => openShiftModal(i, shiftType, mName, dNum, dayWeek);
+                    let val = cellInfo.v ? cellInfo.v.toString().trim() : "";
+                    let sType = normalizeShift(val);
+                    let showDog = false;
+                    let showAmbulance = false;
+
+                    // Logica Cane
+                    if(sType === "M" && countM === 1) showDog = true;
+                    if(sType === "P" && countP === 1) showDog = true;
+
+                    // Logica Ambulanza (Solo M, random una volta al mese)
+                    if(sType === "M") {
+                        let key = `${d.idx}-${mName}`;
+                        if (ambulanceMap[key] == dNum) {
+                            showAmbulance = true;
+                        }
+                    }
+
+                    td.innerHTML = formatCell(cellInfo, showDog, showAmbulance);
+                    
+                    if(["M", "P", "N", "R", "MN"].includes(sType)) {
+                        td.onclick = () => openShiftModal(i, sType, mName, dNum, dayWeek);
                     }
                     tr.appendChild(td);
                 });
@@ -1544,338 +1824,6 @@
             setTimeout(() => { modal.style.display = 'none'; }, 200);
         }
 
-        /* --- LOGICA MODALE CENA/EVENTO --- */
-        let dinnerSelectedMonth = "";
-        let eventType = "cena";
-        
-        function openDinnerModal() {
-            toggleMenu(); 
-            let modal = document.getElementById('dinner-modal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('open'), 10);
-            
-            resetDinnerStep();
-
-            let mList = document.getElementById('dinner-month-list');
-            mList.innerHTML = "";
-            let months = Object.keys(MONTH_MAP);
-            months.forEach(m => {
-                let c = document.createElement('div');
-                c.className = "chip chip-month";
-                c.innerText = m.substr(0,3);
-                c.onclick = () => {
-                    vibrate();
-                    document.querySelectorAll('#dinner-month-list .chip-month').forEach(x => x.classList.remove('active'));
-                    c.classList.add('active');
-                    dinnerSelectedMonth = m;
-                };
-                mList.appendChild(c);
-            });
-            
-            if(!dinnerSelectedMonth) {
-                let curMName = months[new Date().getMonth()];
-                let chips = mList.getElementsByClassName('chip-month');
-                if(chips[new Date().getMonth()]) chips[new Date().getMonth()].click();
-            }
-
-            let dList = document.getElementById('dinner-driver-list');
-            if(dList.children.length === 0) { 
-                drivers.forEach(d => {
-                    let item = document.createElement('label');
-                    item.className = "dinner-check-item checked"; 
-                    item.innerHTML = `
-                        <input type="checkbox" value="${d.idx}" checked onchange="this.parentElement.classList.toggle('checked'); vibrate()">
-                        <div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">check</span></div>
-                        ${d.name}
-                    `;
-                    dList.appendChild(item);
-                });
-            }
-        }
-
-        function setEventType(type, el) {
-            vibrate();
-            eventType = type;
-            document.querySelectorAll('.event-option').forEach(e => e.classList.remove('active'));
-            el.classList.add('active');
-        }
-
-        function toggleAllDrivers() {
-            vibrate();
-            let checks = document.querySelectorAll('#dinner-driver-list input[type="checkbox"]');
-            let allChecked = Array.from(checks).every(c => c.checked);
-            checks.forEach(c => {
-                c.checked = !allChecked;
-                if(!allChecked) c.parentElement.classList.add('checked');
-                else c.parentElement.classList.remove('checked');
-            });
-        }
-
-        function closeDinnerModal(e) {
-            if (e && e.target !== e.currentTarget) return;
-            let modal = document.getElementById('dinner-modal');
-            modal.classList.remove('open');
-            setTimeout(() => { modal.style.display = 'none'; }, 200);
-        }
-        
-        function resetDinnerStep() {
-            document.getElementById('dinner-step-1').style.display = 'block';
-            document.getElementById('dinner-step-2').style.display = 'none';
-        }
-
-        function calculateDinner() {
-            vibrate();
-            if(!dinnerSelectedMonth) { alert("Seleziona un mese!"); return; }
-            
-            let selectedDriversIdx = [];
-            document.querySelectorAll('#dinner-driver-list input:checked').forEach(c => {
-                selectedDriversIdx.push(parseInt(c.value));
-            });
-            
-            if(selectedDriversIdx.length === 0) { alert("Seleziona almeno un collega!"); return; }
-
-            let results = [];
-            
-            for(let i=1; i<finalData.length; i++) {
-                let row = finalData[i];
-                if(row[0].v !== dinnerSelectedMonth) continue;
-                
-                let dayNum = row[1].v;
-                let mIdx = MONTH_MAP[dinnerSelectedMonth];
-                let dateObj = new Date(2026, mIdx, dayNum);
-                let dayWeek = dateObj.toLocaleDateString('it-IT', { weekday: 'long' });
-                
-                let availableCount = 0;
-                let missingNames = [];
-                let reperibiliNames = [];
-                
-                selectedDriversIdx.forEach(dIdx => {
-                    let cellData = row[dIdx];
-                    let val = cellData.v ? cellData.v.toString().trim().toUpperCase() : "";
-                    
-                    let isBusy = false;
-                    let isRep = (val.toLowerCase().includes("/r") || row[dIdx].subV === "R");
-
-                    if(val === "MALATTIA" || val === "MAL" || val === "M" || val === "ASP" || val.includes("CONG") || val === "F") {
-                        isBusy = true;
-                    } 
-                    else if(eventType === 'cena') {
-                        if(val.startsWith("N") || val === "NOT") isBusy = true;
-                    } else {
-                        if(val.startsWith("P") || val === "POM") isBusy = true;
-                    }
-
-                    if(isBusy) {
-                        let dName = drivers.find(d => d.idx === dIdx).name;
-                        missingNames.push(dName);
-                    } else {
-                        availableCount++;
-                        if(isRep) {
-                            let dName = drivers.find(d => d.idx === dIdx).name;
-                            reperibiliNames.push(dName);
-                        }
-                    }
-                });
-                
-                results.push({
-                    day: dayNum,
-                    weekDay: dayWeek,
-                    score: availableCount,
-                    total: selectedDriversIdx.length,
-                    missing: missingNames,
-                    reperibili: reperibiliNames
-                });
-            }
-            
-            results.sort((a, b) => {
-                if(b.score !== a.score) return b.score - a.score;
-                let isWeA = (a.weekDay === "venerdì" || a.weekDay === "sabato");
-                let isWeB = (b.weekDay === "venerdì" || b.weekDay === "sabato");
-                if(isWeA && !isWeB) return -1;
-                if(!isWeA && isWeB) return 1;
-                return 0;
-            });
-            
-            let resContainer = document.getElementById('dinner-results-container');
-            let eventName = (eventType === 'cena') ? "CENE" : "PRANZI";
-            resContainer.innerHTML = `<h4 style="margin:0 20px 15px; color:var(--text-sec)">TOP 10 DATE PER ${eventName} - ${dinnerSelectedMonth}</h4>`;
-            
-            results.slice(0, 10).forEach(res => {
-                let div = document.createElement('div');
-                div.className = "dinner-result-card";
-                
-                let missingHtml = res.missing.length > 0 
-                    ? res.missing.map(n => `<span class="missing-badge">${n}</span>`).join("") 
-                    : "";
-
-                let repHtml = res.reperibili.length > 0
-                    ? res.reperibili.map(n => `<span class="warning-badge">👮‍♂️ ${n}</span>`).join("")
-                    : "";
-                
-                let conflictLabel = (eventType === 'cena') ? "Turno N" : "Turno P";
-
-                let allFreeHtml = "";
-                if(res.missing.length === 0) {
-                    allFreeHtml = `<div style="text-align:center; color:#15803d; font-size:0.95rem; font-weight:800; padding:8px; margin-top:5px; background:#dcfce7; border-radius:8px">TUTTI LIBERI! 🥂</div>`;
-                }
-
-                div.innerHTML = `
-                    <div class="d-res-header">
-                        <span class="d-res-date">${res.weekDay} ${res.day}</span>
-                        <span class="d-res-score">${res.score} / ${res.total}</span>
-                    </div>
-                    
-                    ${allFreeHtml}
-
-                    ${repHtml ? `<div style="font-size:0.75rem; color:#c2410c; margin:10px 0 4px; font-weight:700;">IN SERVIZIO / REPERIBILI:</div>
-                    <div class="missing-list" style="margin-bottom:10px;">${repHtml}</div>` : ""}
-
-                    ${missingHtml ? `<div style="font-size:0.75rem; color:var(--text-sec); margin-bottom:4px;">ASSENTI (${conflictLabel}):</div>
-                    <div class="missing-list">${missingHtml}</div>` : ""}
-                `;
-                resContainer.appendChild(div);
-            });
-            
-            document.getElementById('dinner-step-1').style.display = 'none';
-            document.getElementById('dinner-step-2').style.display = 'block';
-        }
-
-        // --- GESTIONE STATISTICHE ---
-        
-        function openStatsSelection() {
-            toggleMenu(); 
-            let container = document.getElementById('stats-container');
-            container.innerHTML = "";
-            let h3 = document.querySelector('.stats-header h3');
-            h3.innerHTML = "<span class='material-icons-round'>person_search</span> SELEZIONA AUTISTA";
-            h3.style.color = "var(--text-main)";
-
-            drivers.forEach(d => {
-                let div = document.createElement('div');
-                div.className = "driver-list-item";
-                div.innerHTML = `<span>${d.name}</span><span class="material-icons-round" style="color:var(--text-sec)">chevron_right</span>`;
-                div.onclick = () => { vibrate(); showDriverStats(d); };
-                container.appendChild(div);
-            });
-
-            document.getElementById('stats-modal').classList.add('open');
-        }
-
-        function closeStatsModal() {
-            document.getElementById('stats-modal').classList.remove('open');
-        }
-
-        function showDriverStats(driver) {
-            let container = document.getElementById('stats-container');
-            let h3 = document.querySelector('.stats-header h3');
-            h3.innerHTML = `<span class='material-icons-round'>account_circle</span> ${driver.name}`;
-            h3.style.color = "var(--primary)";
-
-            let stats = {
-                ferie: 0, congedo: 0, permessi: 0, recupero: 0, malattia: 0, festNonGod: 0,
-                mattine: 0, pomeriggi: 0, notti: 0
-            };
-
-            for(let i=1; i<finalData.length; i++) {
-                let row = finalData[i];
-                let cellData = row[driver.idx];
-                if(!cellData) continue;
-
-                let val = cellData.v ? cellData.v.toString().trim() : "";
-                let color = cellData.c || "";
-                let subColor = cellData.subC || "";
-                let subVal = cellData.subV ? cellData.subV.toString().trim().toUpperCase() : "";
-                let u = val.toUpperCase();
-
-                let matched = false;
-
-                if(u === "NL" || subVal === "NL") { stats.festNonGod++; matched=true; }
-                if(subVal === "NG") { stats.festNonGod++; matched=true; }
-                if(subVal === "M") { stats.malattia++; matched=true; }
-                if(matched) continue;
-
-                if(subColor && subColor.length >= 6) {
-                    let cat = detectColorCategory(subColor);
-                    if(cat) {
-                        if(cat.lbl === "MALATTIA") { stats.malattia++; matched=true; }
-                        else if(cat.lbl.includes("FESTIVO")) { stats.festNonGod++; matched=true; }
-                    }
-                }
-                if(matched) continue;
-
-                if(color && color.length >= 6) {
-                    let cat = detectColorCategory(color);
-                    if(cat) {
-                        if(cat.lbl.includes("PERMESSO")) { stats.permessi++; matched=true; }
-                        else if(cat.lbl.includes("CONGEDO")) { stats.congedo++; matched=true; }
-                        else if(cat.lbl.includes("FERIE")) { stats.ferie++; matched=true; }
-                        else if(cat.lbl.includes("RECUPERO")) { stats.recupero++; matched=true; }
-                        else if(cat.lbl.includes("FESTIVO")) { stats.festNonGod++; matched=true; }
-                    }
-                }
-                if(matched) continue;
-
-                if(u.includes("FER") || subVal.includes("FER")) stats.ferie++;
-                else if(u.includes("CONG") || subVal.includes("CONG")) stats.congedo++;
-                else if(u.includes("REC") || subVal.includes("REC") || subVal === "R") stats.recupero++; 
-                else if(u.includes("PER") || subVal.includes("PER")) stats.permessi++;
-                
-                else if(u.startsWith("M") || val === "m") stats.mattine++;
-                else if(u.startsWith("P") || val === "p") stats.pomeriggi++;
-                else if(u.startsWith("N")) stats.notti++;
-            }
-
-            container.innerHTML = `
-                <div class="driver-list-item" onclick="openStatsSelection()" style="background:var(--bg); color:var(--text-sec); margin-bottom:20px; border:none;">
-                    <span style="display:flex; align-items:center; gap:10px;"><span class="material-icons-round">arrow_back</span> TORNA ALLA LISTA</span>
-                </div>
-                
-                <h4 style="margin:0 0 10px 0; color:var(--text-sec); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px">Assenze & Permessi</h4>
-                <div class="stats-grid">
-                    <div class="stat-card sc-fer">
-                        <span class="stat-val" style="color:#a15300">${stats.ferie}</span>
-                        <span class="stat-lbl">Ferie Residue</span>
-                    </div>
-                    <div class="stat-card sc-cong">
-                        <span class="stat-val" style="color:#000000">${stats.congedo}</span>
-                        <span class="stat-lbl">Congedi Ord.</span>
-                    </div>
-                    <div class="stat-card sc-perm">
-                        <span class="stat-val" style="color:#004e1c">${stats.permessi}</span>
-                        <span class="stat-lbl">Permessi Str.</span>
-                    </div>
-                    <div class="stat-card sc-rec">
-                        <span class="stat-val" style="color:#c3006b">${stats.recupero}</span>
-                        <span class="stat-lbl">Recuperi</span>
-                    </div>
-                    <div class="stat-card sc-mal">
-                        <span class="stat-val" style="color:#b91c1c">${stats.malattia}</span>
-                        <span class="stat-lbl">Malattia</span>
-                    </div>
-                    <div class="stat-card sc-fest">
-                        <span class="stat-val" style="color:#0369a1">${stats.festNonGod}</span>
-                        <span class="stat-lbl">Fest. Non God.</span>
-                    </div>
-                </div>
-
-                <h4 style="margin:25px 0 10px 0; color:var(--text-sec); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px">Turni Svolti</h4>
-                <div class="stats-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-                    <div class="stat-card" style="border-color:var(--b-M); background:var(--c-M); color:var(--t-M);">
-                        <span class="stat-val" style="color:white">${stats.mattine}</span>
-                        <span class="stat-lbl" style="opacity:0.9; color:white">Mattine</span>
-                    </div>
-                    <div class="stat-card" style="border-color:var(--b-P); background:var(--c-P); color:var(--t-P);">
-                        <span class="stat-val" style="color:white">${stats.pomeriggi}</span>
-                        <span class="stat-lbl" style="opacity:0.9; color:white">Pomeriggi</span>
-                    </div>
-                    <div class="stat-card" style="border-color:var(--b-N); background:var(--c-N); color:white;">
-                        <span class="stat-val" style="color:white">${stats.notti}</span>
-                        <span class="stat-lbl" style="color:#cbd5e1">Notti</span>
-                    </div>
-                </div>
-            `;
-        }
-
         // --- RICONOSCIMENTO COLORI ---
         function detectColorCategory(argb) {
             if(!argb || argb.length < 8) return null;
@@ -1903,12 +1851,15 @@
             return null; 
         }
 
-        function formatCell(info) {
+        function formatCell(info, showDog, showAmbulance) {
             let val = info.v ? info.v.toString().trim() : "";
             let color = info.c || "";
             let subColor = info.subC || ""; 
             let u = val.toUpperCase();
             let subVal = info.subV ? info.subV.toString().trim().toUpperCase() : "";
+
+            const dogHtml = '<img src="cane.png" class="dog-icon" alt="dog" onclick="playDogSound(event)">';
+            const ambHtml = '<img src="ambulanza.png" class="ambulance-icon" alt="game" onclick="openGameModal(event)">';
 
             if(u === "M+N" || u === "M + N") {
                  return `<div class="cell t-MN">
@@ -1994,7 +1945,10 @@
             
             let repHtml = isRep ? `<div class="rep-badge">REPERIBILE</div>` : "";
 
+            // INIETTIAMO IL CANE e/o L'AMBULANZA
             return `<div class="${cls}">
+                ${showDog ? dogHtml : ''}
+                ${showAmbulance ? ambHtml : ''}
                 <div>${display}</div>
                 ${time ? `<div class="time-tag">${time}</div>` : ""}
                 ${repHtml}
