@@ -34,11 +34,11 @@
             --border: #e2e8f0;
             --header-bg: rgba(255, 255, 255, 0.92);
             
-            --header-h: 100px; /* RIDOTTO: Tolta la barra scorrimento orizzontale dal flusso principale */      
-            --cell-h: 60px;                   
+            --header-h: 100px; /* RIDOTTO: Tolta la barra scorrimento orizzontale dal flusso principale */       
+            --cell-h: 60px;                    
             --font-base: 0.85rem;        
             --font-small: 0.7rem;        
-            --th-h: 40px;                   
+            --th-h: 40px;                    
             
             /* --- COLORI TURNI (Base) --- */
             --c-M: #026bfe; --t-M: #ffffff; --b-M: #bae6fd;
@@ -120,10 +120,7 @@
         .logo img { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); border-radius: 8px; cursor: pointer; height: 36px; width: auto; }
         .logo-text { display: flex; flex-direction: column; line-height: 1; overflow: hidden; text-overflow: ellipsis; }
         
-        /* Nascondi badge aggiornamento su schermi molto piccoli */
-        @media (max-width: 360px) {
-            #last-update-badge { display: none; }
-        }
+        /* RIMOSSO CSS CHE NASCONDEVA IL BADGE SU SCHERMI PICCOLI */
 
         .right-controls { display: flex; gap: 5px; position: relative; flex-shrink: 0; }
 
