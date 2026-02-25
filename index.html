@@ -35,10 +35,10 @@
             --header-bg: rgba(255, 255, 255, 0.92);
             
             --header-h: 155px;        
-            --cell-h: 60px;                  
+            --cell-h: 60px;                   
             --font-base: 0.85rem;        
             --font-small: 0.7rem;        
-            --th-h: 40px;                  
+            --th-h: 40px;                   
             
             /* --- COLORI TURNI (Base) --- */
             --c-M: #026bfe; --t-M: #ffffff; --b-M: #bae6fd;
@@ -794,6 +794,10 @@
                     <span class="material-icons-round">home</span>
                 </button>
 
+                <button class="btn-action" onclick="openInfLink()">
+                   <span style="font-weight:900; font-size:0.9rem;">INF</span>
+                </button>
+
                 <button class="btn-action" onclick="openNotifCenter()" style="position:relative">
                     <span class="material-icons-round">notifications</span>
                     <span id="notif-badge" class="badge-dot"></span>
@@ -858,6 +862,17 @@
         let notifHistory = []; 
         let ambulanceMap = {}; // Mappa { "NomeAutista-Mese": "Giorno" }
         
+        // --- FUNZIONE LINK INF ---
+        function openInfLink() {
+            vibrate();
+            let p = prompt("Inserisci Password:");
+            if(p === "infermo") {
+                window.location.href = "https://centrale118rsm-code.github.io/INFERMIERI-2026/";
+            } else if (p !== null) {
+                alert("Password Errata!");
+            }
+        }
+
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -1442,7 +1457,7 @@
 
                 if(changesFound.length > 0) {
                     saveNotifications(); 
-                    updateBadge();       
+                    updateBadge();        
                     showChangeAlert(changesFound);
                 }
             }
