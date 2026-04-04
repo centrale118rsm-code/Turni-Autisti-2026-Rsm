@@ -2200,7 +2200,13 @@
                 let val = (row[d.idx]?.v || "").toString().trim();
                 if (isAbsenceOrEmpty(val)) return;
                 if (normalizeShift(val) !== shiftType) return;
-                driversInShift.push({ name: d.name, isRep: val.toLowerCase().includes("/r") });
+                
+                // Salviamo anche il valore originale (rawVal) per poter identificare i minuscoli
+                driversInShift.push({ 
+                    name: d.name, 
+                    isRep: val.toLowerCase().includes("/r"),
+                    rawVal: val 
+                });
             });
 
             if (driversInShift.length === 0) {
@@ -2209,15 +2215,30 @@
                 nd.innerHTML = `<span class="material-icons-round" style="color:var(--text-sec);font-size:16px">person_off</span> Nessun autista in ${meta.name}`;
                 list.appendChild(nd);
             } else {
-                driversInShift.forEach(({ name, isRep }) => {
+                driversInShift.forEach(({ name, isRep, rawVal }) => {
+                    let firstChar = rawVal.charAt(0);
+                    let specificTime = meta.time;
+                    let isDiurno = false;
+
+                    // Controlliamo se la prima lettera è minuscola (Diurnista)
+                    if (firstChar === 'm') {
+                        specificTime = "6:30 \u2013 13:42";
+                        isDiurno = true;
+                    } else if (firstChar === 'p') {
+                        specificTime = "13:15 \u2013 20:27";
+                        isDiurno = true;
+                    }
+
                     let div = document.createElement('div');
                     div.className = "colleague-item";
                     div.innerHTML = `
                         <span class="c-name">
                             <span class="material-icons-round" style="font-size:14px;color:#2563eb;margin-right:5px;vertical-align:middle">person</span>
-                            ${name}${isRep ? ' <span class="rep-badge" style="margin-left:6px">REP</span>' : ''}
+                            ${name}
+                            ${isDiurno ? '<span style="font-size:0.65rem; background:var(--bg); color:var(--text-sec); padding:3px 6px; border-radius:6px; margin-left:6px; font-weight:800; border:1px solid var(--border); letter-spacing:0.5px;">DIURNO</span>' : ''}
+                            ${isRep ? ' <span class="rep-badge" style="margin-left:6px">REP</span>' : ''}
                         </span>
-                        <span class="c-time">${meta.time}</span>`;
+                        <span class="c-time">${specificTime}</span>`;
                     list.appendChild(div);
                 });
             }
@@ -2260,16 +2281,38 @@
                         if (isAbsenceOrEmpty(val)) return;
                         if (normalizeShift(val) !== shiftType) return;
                         nurseFound++;
-                        let t = SCHEDULE[val.toUpperCase()] || SCHEDULE[shiftType] || "";
+                        
+                        let firstChar = val.charAt(0);
+                        let specificTime = meta.time;
+                        let isDiurno = false;
+
+                        // Controlliamo se la prima lettera è minuscola (Diurnista)
+                        if (firstChar === 'm') {
+                            specificTime = "6:30 \u2013 13:42";
+                            isDiurno = true;
+                        } else if (firstChar === 'p') {
+                            specificTime = "13:15 \u2013 20:27";
+                            isDiurno = true;
+                        } else {
+                            // Fallback per gli altri turni
+                            specificTime = SCHEDULE[val.toUpperCase()] || SCHEDULE[shiftType] || meta.time;
+                        }
+
                         let isRep = val.toLowerCase().includes("/r");
+                        
                         let div = document.createElement('div');
                         div.className = "colleague-item";
                         div.innerHTML = `
                             <span class="c-name nurse-name">
                                 <span class="material-icons-round" style="font-size:14px;color:#059669;margin-right:5px;vertical-align:middle">local_hospital</span>
-                                ${n.name}${isRep ? ' <span class="rep-badge" style="margin-left:6px">REP</span>' : ''}
+                                ${n.name}
+                                ${isDiurno ? '<span style="font-size:0.65rem; background:var(--bg); color:var(--text-sec); padding:3px 6px; border-radius:6px; margin-left:6px; font-weight:800; border:1px solid var(--border); letter-spacing:0.5px;">DIURNO</span>' : ''}
+                                ${isRep ? ' <span class="rep-badge" style="margin-left:6px">REP</span>' : ''}
                             </span>
-                            <span class="nurse-shift-tag">${meta.name}${t ? '<br><span style="font-size:0.68rem;opacity:0.75">'+t+'</span>' : ''}</span>`;
+                            <span class="nurse-shift-tag" style="text-align:right;">
+                                ${meta.name}<br>
+                                <span style="font-size:0.68rem;opacity:0.75">${specificTime}</span>
+                            </span>`;
                         list.appendChild(div);
                     });
                     if (nurseFound === 0) {
