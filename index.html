@@ -1119,7 +1119,11 @@
                 <button class="btn-action" onclick="toggleMenu()">
                     <span class="material-icons-round">more_vert</span>
                 </button>
-                <div id="menu-dropdown">
+                
+                   <div id="menu-dropdown">
+                    <div class="menu-item" onclick="openPersonalArea()">
+                        <span class="material-icons-round">badge</span> Area Personale
+                    </div>
                     <div class="menu-item" onclick="openDinnerModal()">
                         <span class="material-icons-round">restaurant</span> Organizza Uscita
                     </div>
@@ -1132,6 +1136,7 @@
                     <div class="menu-item" onclick="vibrate(); location.reload()">
                         <span class="material-icons-round">refresh</span> Aggiorna
                     </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -1213,7 +1218,14 @@
             vibrate();
             window.open("https://centrale118rsm-code.github.io/Turni-Infermieri-2026/", "_blank");
         }
-
+// --- FUNZIONE AREA PERSONALE AUTISTI ---
+        function openPersonalArea() {
+            vibrate(); // Mantiene il feedback tattile coerente con il resto dell'app
+            toggleMenu(); // Chiude il menu a tendina prima di aprire la nuova pagina
+            
+            // INSERISCI QUI IL LINK ESATTO DEL TUO FILE SU GITHUB
+            window.open("https://centrale118rsm-code.github.io/Area-riservata-A.S.-118/", "_blank");
+        }
         // --- CARICAMENTO DATI INFERMIERI ---
         async function loadNursesData() {
             try {
