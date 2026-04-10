@@ -18,8 +18,10 @@
     <title>A.S. 26</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
     <style>
         /* --- RESET E BASE --- */
@@ -2956,6 +2958,106 @@
         function renderSpecial(text, cssClass) {
             return `<div class="cell ${cssClass}">${text}</div>`;
         }
+        // =========================================================
+        // INTEGRAZIONE FIREBASE - NOTIFICHE NUOVE RICHIESTE
+        // =========================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMX2ycf_6P3AcBvarVX4XNKbdposkuqgE",
+            authDomain: "area-personale-autsocc-118-rsm.firebaseapp.com",
+            projectId: "area-personale-autsocc-118-rsm",
+            storageBucket: "area-personale-autsocc-118-rsm.firebasestorage.app",
+            messagingSenderId: "910283994567",
+            appId: "1:910283994567:web:d9c45b5f4b5a83b92595e2"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        let initialLoad = true;
+
+        // Ascolto la cartella 'richieste_turni'
+        db.collection('richieste_turni').onSnapshot((snapshot) => {
+            if (initialLoad) {
+                initialLoad = false; // Evito che suonino notifiche per le richieste vecchie al caricamento pagina
+                return; 
+            }
+
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === "added") { // Se è stata inserita una nuova richiesta
+                    const richiesta = change.doc.data();
+
+                    // Controllo se l'utente che sta guardando l'app è abilitato a vedere l'avviso
+                    let isAmministratoreAttivo = false;
+                    
+                    if (typeof selectedDrivers !== 'undefined') {
+                        if (selectedDrivers.size === 0) {
+                            isAmministratoreAttivo = true; // Modalità "Tutti"
+                        } else {
+                            selectedDrivers.forEach(idx => {
+                                let d = drivers.find(x => x.idx === idx);
+                                if (d && (d.name.includes("PAZZAGLIA") || d.name.includes("BARBIERI"))) {
+                                    isAmministratoreAttivo = true;
+                                }
+                            });
+                        }
+                    }
+
+                    if (isAmministratoreAttivo) {
+                        let nomeRichiedente = richiesta.name || 'N/D';
+                        let tipoRaw = richiesta.type || 'N/D';
+                        let tipoRichiesta = tipoRaw.replace(/_/g, ' ').toUpperCase();
+                        let dataDal = richiesta.dateFrom ? new Date(richiesta.dateFrom).toLocaleDateString('it-IT') : 'N/D';
+                        let dataAl = richiesta.dateTo ? new Date(richiesta.dateTo).toLocaleDateString('it-IT') : dataDal;
+                        let note = richiesta.notes || '-';
+                        let swap = richiesta.swapWith ? `<br><b style="color:#b45309;">Cambio con:</b> ${richiesta.swapWith}` : '';
+
+                        let testoPopup = `
+                            <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:12px; margin-top:10px;">
+                                <b style="color:#b45309;">Da:</b> ${nomeRichiedente}<br>
+                                <b style="color:#b45309;">Tipo:</b> ${tipoRichiesta} ${swap}<br>
+                                <b style="color:#b45309;">Periodo:</b> dal ${dataDal} al ${dataAl}<br>
+                                <b style="color:#b45309;">Note:</b> ${note}
+                            </div>
+                        `;
+
+                        // Fa apparire il popup di avviso
+                        let alertTitle = document.getElementById('alert-title-text');
+                        let alertMsg = document.getElementById('alert-message-text');
+                        let alertModal = document.getElementById('alert-modal');
+
+                        if (alertTitle && alertMsg && alertModal) {
+                            alertTitle.innerHTML = `⚠️ NUOVA RICHIESTA RICEVUTA`;
+                            alertMsg.innerHTML = `Un operatore ha appena inviato una richiesta: ${testoPopup}`;
+                            alertModal.style.display = 'flex';
+                            setTimeout(() => alertModal.classList.add('open'), 50);
+                        }
+
+                        // Vibrazione telefono
+                        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+                        // Aggiunge al Centro Notifiche laterale
+                        if (typeof notifHistory !== 'undefined') {
+                            let notifObj = {
+                                id: Date.now() + Math.random(),
+                                text: `<b style="color:#d97706;">NUOVA RICHIESTA (${tipoRichiesta})</b><br>${testoPopup}`,
+                                read: false,
+                                date: new Date().toLocaleString('it-IT')
+                            };
+                            
+                            notifHistory.unshift(notifObj);
+                            if (typeof saveNotifications === 'function') saveNotifications();
+                            if (typeof updateBadge === 'function') updateBadge();
+
+                            let notifModal = document.getElementById('notif-center-modal');
+                            if (notifModal && notifModal.classList.contains('open') && typeof renderNotifList === 'function') {
+                                renderNotifList();
+                            }
+                        }
+                    }
+                }
+            });
+        });
     </script>
 
 </body>
