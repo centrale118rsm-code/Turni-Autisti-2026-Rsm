@@ -2997,20 +2997,7 @@
                     const deveSuonare = !initialLoad;
 
                     // Controllo autorizzazione (Admin/Pazzaglia/Barbieri)
-                    let isAmministratoreAttivo = false;
-                    if (typeof selectedDrivers !== 'undefined') {
-                        if (selectedDrivers.size === 0) {
-                            isAmministratoreAttivo = true; 
-                        } else {
-                            selectedDrivers.forEach(idx => {
-                                let d = drivers.find(x => x.idx === idx);
-                                if (d && (d.name.includes("PAZZAGLIA") || d.name.includes("BARBIERI"))) {
-                                    isAmministratoreAttivo = true;
-                                }
-                            });
-                        }
-                    }
-
+                
                     if (isAmministratoreAttivo) {
                         let nomeRichiedente = richiesta.name || 'N/D';
                         let tipoRaw = richiesta.type || 'N/D';
