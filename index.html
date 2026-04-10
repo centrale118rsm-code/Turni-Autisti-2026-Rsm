@@ -977,10 +977,22 @@
             <div class="modal-body" style="padding:0">
                 <div class="option-item" style="display:block">
                     <div style="margin-bottom:10px">
-                        <span style="font-size:1rem; font-weight:700">Monitoraggio Turni</span>
-                        <div style="font-size:0.8rem; color:var(--text-sec)">Seleziona chi seguire. Riceverai un avviso nell'app se il turno cambia.</div>
+                        <span style="font-size:1rem; font-weight:700">Chi sei?</span>
+                        <div style="font-size:0.8rem; color:var(--text-sec)">Seleziona il tuo nome per ricevere notifiche sui tuoi turni e sulle tue richieste.</div>
                     </div>
-                    <div id="notification-driver-list" class="dinner-checkbox-list" style="padding:0; grid-template-columns: 1fr 1fr;"></div>
+                    <select id="turni-user-select" onchange="saveTurniUser(this.value)" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);font-size:0.95rem;font-weight:600;background:var(--bg);color:var(--text-main);">
+                        <option value="">-- Nessuna selezione --</option>
+                        <option value="Barbieri">Barbieri</option>
+                        <option value="Pazzaglia">Pazzaglia</option>
+                        <option value="Bianchi">Bianchi</option>
+                        <option value="Sarti">Sarti</option>
+                        <option value="Ghiotti">Ghiotti</option>
+                        <option value="Berardi">Berardi</option>
+                        <option value="Michelotti">Michelotti</option>
+                        <option value="Volpini">Volpini</option>
+                        <option value="Fabbri">Fabbri</option>
+                    </select>
+                    <div id="turni-user-status" style="margin-top:8px;font-size:0.8rem;font-weight:600;color:var(--text-sec);"></div>
                 </div>
                 <div class="option-item" id="install-container">
                     <div style="display:flex; flex-direction:column">
@@ -1769,39 +1781,34 @@
             }
         }
 
-        let watchedDrivers = new Set();
+        let turniUserName = localStorage.getItem('turni_user_name') || '';
 
         function initNotificationOptions() {
-            const list = document.getElementById('notification-driver-list');
-            if(!list) return;
-            list.innerHTML = "";
-            const saved = localStorage.getItem('watched_drivers_ids');
-            if(saved) {
-                watchedDrivers = new Set(JSON.parse(saved));
-            }
-            drivers.forEach(d => {
-                let isChecked = watchedDrivers.has(d.idx) ? "checked" : "";
-                let item = document.createElement('label');
-                item.className = `dinner-check-item ${isChecked}`;
-                item.innerHTML = `
-                    <input type="checkbox" value="${d.idx}" ${isChecked ? "checked" : ""} onchange="toggleWatchDriver(${d.idx}, this)">
-                    <div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">notifications</span></div>
-                    ${d.name}
-                `;
-                list.appendChild(item);
-            });
+            const sel = document.getElementById('turni-user-select');
+            if(!sel) return;
+            sel.value = turniUserName;
+            updateTurniUserStatus();
         }
 
-        function toggleWatchDriver(idx, el) {
+        function saveTurniUser(val) {
             vibrate();
-            if(watchedDrivers.has(idx)) {
-                watchedDrivers.delete(idx);
-                el.parentElement.classList.remove('checked');
+            turniUserName = val;
+            localStorage.setItem('turni_user_name', val);
+            // Reset snapshot quando cambi utente per evitare falsi positivi
+            localStorage.removeItem('schedule_snapshot');
+            updateTurniUserStatus();
+        }
+
+        function updateTurniUserStatus() {
+            const el = document.getElementById('turni-user-status');
+            if(!el) return;
+            if(turniUserName) {
+                const isAdmin = (turniUserName === 'Pazzaglia' || turniUserName === 'Barbieri');
+                el.innerHTML = `<span style="color:#059669;">✓ Notifiche attive per <b>${turniUserName}</b></span>` +
+                    (isAdmin ? `<br><span style="color:#d97706;">⚡ Riceverai anche notifiche nuove richieste</span>` : '');
             } else {
-                watchedDrivers.add(idx);
-                el.parentElement.classList.add('checked');
+                el.innerHTML = `<span style="color:#ef4444;">Nessuna notifica attiva — seleziona il tuo nome</span>`;
             }
-            localStorage.setItem('watched_drivers_ids', JSON.stringify([...watchedDrivers]));
         }
 
         function getShiftReadableName(code) {
@@ -1821,7 +1828,12 @@
         }
 
         function checkForScheduleChanges() {
-            if(watchedDrivers.size === 0) return;
+            if(!turniUserName) return;
+            // Trova l'indice del driver che corrisponde all'utente
+            const myDriver = drivers.find(d => d.name.toLowerCase() === turniUserName.toLowerCase());
+            if(!myDriver) return;
+            const myIdx = myDriver.idx;
+
             let currentSnapshot = {};
             for(let i=1; i<finalData.length; i++) {
                 let row = finalData[i];
@@ -1829,40 +1841,28 @@
                 let day = row[1].v;        
                 if(!day || !month) continue;
                 let dateKey = `${month}-${day}`; 
-                watchedDrivers.forEach(dIdx => {
-                    let cell = row[dIdx];
-                    let val = cell.v ? cell.v.toString().trim() : "";
-                    // Normalizza il valore per confronto stabile
-                    let normalized = normalizeShift(val) || val.toUpperCase();
-                    let uniqueKey = `${dateKey}-DRV${dIdx}`;
-                    currentSnapshot[uniqueKey] = normalized;
-                });
+                let cell = row[myIdx];
+                let val = cell.v ? cell.v.toString().trim() : "";
+                let normalized = normalizeShift(val) || val.toUpperCase();
+                currentSnapshot[dateKey] = normalized;
             }
+
             let oldJson = localStorage.getItem('schedule_snapshot');
             if(oldJson) {
                 let oldSnapshot = JSON.parse(oldJson);
-                // Raggruppa cambi per autista
-                let changesByDriver = {};
-                for (const [key, newVal] of Object.entries(currentSnapshot)) {
-                    let oldVal = oldSnapshot[key];
+                let changes = [];
+                for (const [dateKey, newVal] of Object.entries(currentSnapshot)) {
+                    let oldVal = oldSnapshot[dateKey];
                     if(!oldVal || oldVal === newVal) continue;
-                    // Ignora cambi trascurabili (entrambi vuoti/"-")
                     if((!newVal || newVal === "-" || newVal === "") && (!oldVal || oldVal === "-" || oldVal === "")) continue;
-                    let parts = key.split("-DRV"); 
-                    let datePart = parts[0]; 
-                    let drvIdx = parseInt(parts[1]);
-                    let drvName = drivers.find(d => d.idx === drvIdx)?.name || "Autista";
                     let oldShiftName = getShiftReadableName(oldVal);
                     let newShiftName = getShiftReadableName(newVal);
-                    // Ignora se i nomi leggibili sono identici (es. M → MAT)
                     if(oldShiftName === newShiftName) continue;
-                    if(!changesByDriver[drvName]) changesByDriver[drvName] = [];
-                    changesByDriver[drvName].push({ date: datePart, from: oldShiftName, to: newShiftName });
+                    changes.push({ date: dateKey, from: oldShiftName, to: newShiftName });
                 }
-                let changesFound = [];
-                for(const [drvName, changes] of Object.entries(changesByDriver)) {
-                    // Formato notifica raggruppato per autista
-                    let detailLines = changes.slice(0, 4).map(c =>
+
+                if(changes.length > 0) {
+                    let detailLines = changes.slice(0, 6).map(c =>
                         `<span style="font-size:0.8rem;display:block;margin-top:3px;color:var(--text-sec)">
                             📅 ${c.date} &nbsp;
                             <span style="color:#ef4444;font-weight:700">${c.from}</span>
@@ -1870,21 +1870,21 @@
                             <span style="color:#15803d;font-weight:700">${c.to}</span>
                         </span>`
                     ).join('');
-                    if(changes.length > 4) detailLines += `<span style="font-size:0.75rem;color:var(--text-sec);display:block;margin-top:2px">...e altri ${changes.length-4} cambi</span>`;
-                    let msg = `<b style="font-size:1rem">${drvName}</b> &nbsp;<span style="background:#dbeafe;color:#1e40af;font-size:0.6rem;font-weight:700;padding:2px 6px;border-radius:5px;vertical-align:middle">${changes.length} variaz.</span>${detailLines}`;
-                    changesFound.push(msg);
+                    if(changes.length > 6) detailLines += `<span style="font-size:0.75rem;color:var(--text-sec);display:block;margin-top:2px">...e altre ${changes.length-6} variazioni</span>`;
+                    
+                    let msg = `<b style="font-size:1rem">I tuoi turni sono cambiati</b> &nbsp;<span style="background:#dbeafe;color:#1e40af;font-size:0.6rem;font-weight:700;padding:2px 6px;border-radius:5px;vertical-align:middle">${changes.length} variaz.</span>${detailLines}`;
+                    
                     let notifObj = {
                         id: Date.now() + Math.random(),
                         text: msg,
                         read: false,
-                        date: new Date().toLocaleString('it-IT')
+                        date: new Date().toLocaleString('it-IT'),
+                        type: 'shift_change'
                     };
                     notifHistory.unshift(notifObj);
-                }
-                if(changesFound.length > 0) {
                     saveNotifications(); 
                     updateBadge();        
-                    showChangeAlert(changesFound);
+                    showChangeAlert([msg]);
                 }
             }
             localStorage.setItem('schedule_snapshot', JSON.stringify(currentSnapshot));
@@ -2962,7 +2962,7 @@
             return `<div class="cell ${cssClass}">${text}</div>`;
         }
       // =========================================================
-        // INTEGRAZIONE FIREBASE - NOTIFICHE NUOVE RICHIESTE (SISTEMATA)
+        // INTEGRAZIONE FIREBASE - SISTEMA NOTIFICHE COMPLETO
         // =========================================================
         const firebaseConfig = {
             apiKey: "AIzaSyAMX2ycf_6P3AcBvarVX4XNKbdposkuqgE",
@@ -2979,84 +2979,158 @@
         }
         const db = firebase.firestore();
         let initialLoad = true;
+        // Tiene traccia dello stato precedente delle richieste per rilevare cambi insertedInShifts
+        let previousRequestsState = {};
 
-        // Ascolto la cartella 'richieste_turni'
+        const TIPO_LABELS = {
+            "copertura_reperibilita": "Copertura Reperibilità",
+            "ferie": "Ferie", "ferie_anno_prec": "Ferie Anno Prec.",
+            "permesso_ore": "Permesso Ore", "permesso": "Permesso",
+            "cambio_reperibilita": "Cambio Reperibilità", "cambio_turno": "Cambio Turno",
+            "recupero_ore": "Recupero Ore", "permesso_matrimonio": "Permesso Matrimonio",
+            "permesso_studio": "Permesso Studio", "permesso_sportivo": "Permesso Sportivo",
+            "permesso_notte": "Permesso Notte", "aspettativa": "Aspettativa",
+            "permesso_lutto": "Permesso Lutto"
+        };
+
         db.collection('richieste_turni').onSnapshot((snapshot) => {
             
-            // Logica per gestire i cambiamenti
             snapshot.docChanges().forEach((change) => {
                 const richiesta = change.doc.data();
-                
-                // NOTIFICA SE:
-                // 1. È una nuova aggiunta (change.type === "added")
-                // 2. NON è stata ancora inserita nei turni (insertedInShifts è false o non esiste)
-                // 3. NON è stata ritirata/oscurata (obscured è false)
-                if (change.type === "added" && !richiesta.insertedInShifts && !richiesta.obscured) {
-                    
-                    // Se siamo al primo caricamento, non facciamo suonare la vibrazione ma mostriamo solo il popup/notifica
-                    const deveSuonare = !initialLoad;
+                const docId = change.doc.id;
+                const userName = turniUserName; // L'utente corrente del programma turni
+                const isOperatore = (userName === 'Pazzaglia' || userName === 'Barbieri');
 
-                    // Controllo autorizzazione (Admin/Pazzaglia/Barbieri)
-                
-                    if (isAmministratoreAttivo) {
+                // ─── 1. NUOVA RICHIESTA → notifica a Pazzaglia e Barbieri ───
+                if (change.type === "added" && !richiesta.insertedInShifts && !richiesta.obscured && userName) {
+                    
+                    if (isOperatore) {
                         let nomeRichiedente = richiesta.name || 'N/D';
                         let tipoRaw = richiesta.type || 'N/D';
-                        let tipoRichiesta = tipoRaw.replace(/_/g, ' ').toUpperCase();
+                        let tipoRichiesta = TIPO_LABELS[tipoRaw] || tipoRaw.replace(/_/g, ' ').toUpperCase();
                         let dataDal = richiesta.dateFrom ? new Date(richiesta.dateFrom).toLocaleDateString('it-IT') : 'N/D';
                         let dataAl = richiesta.dateTo ? new Date(richiesta.dateTo).toLocaleDateString('it-IT') : dataDal;
                         let note = richiesta.notes || '-';
                         let swap = richiesta.swapWith ? `<br><b style="color:#b45309;">Cambio con:</b> ${richiesta.swapWith}` : '';
+                        let timeSlot = richiesta.timeSlot ? `<br><b style="color:#b45309;">Fascia:</b> ${richiesta.timeSlot}` : '';
+                        let effectiveDays = (richiesta.effectiveDays && richiesta.effectiveDays !== 'N/A') ? `<br><b style="color:#b45309;">Giorni effettivi:</b> ${richiesta.effectiveDays}` : '';
 
                         let testoPopup = `
                             <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:12px; margin-top:10px;">
                                 <b style="color:#b45309;">Da:</b> ${nomeRichiedente}<br>
-                                <b style="color:#b45309;">Tipo:</b> ${tipoRichiesta} ${swap}<br>
-                                <b style="color:#b45309;">Periodo:</b> dal ${dataDal} al ${dataAl}<br>
+                                <b style="color:#b45309;">Tipo:</b> ${tipoRichiesta} ${swap}${timeSlot}<br>
+                                <b style="color:#b45309;">Periodo:</b> dal ${dataDal} al ${dataAl}${effectiveDays}<br>
                                 <b style="color:#b45309;">Note:</b> ${note}
                             </div>
                         `;
 
-                        // Mostra Popup
+                        // Popup
                         let alertTitle = document.getElementById('alert-title-text');
                         let alertMsg = document.getElementById('alert-message-text');
                         let alertModal = document.getElementById('alert-modal');
 
                         if (alertTitle && alertMsg && alertModal) {
                             alertTitle.innerHTML = initialLoad ? `⏳ RICHIESTE IN SOSPESO` : `⚠️ NUOVA RICHIESTA RICEVUTA`;
-                            alertMsg.innerHTML = initialLoad ? `Ci sono richieste non ancora gestite: ${testoPopup}` : `Un operatore ha appena inviato una richiesta: ${testoPopup}`;
+                            alertMsg.innerHTML = (initialLoad ? `Ci sono richieste non ancora gestite:` : `Un operatore ha appena inviato una richiesta:`) + testoPopup;
                             alertModal.style.display = 'flex';
                             setTimeout(() => alertModal.classList.add('open'), 50);
                         }
 
-                        // Vibrazione solo se NON è il caricamento iniziale (per evitare fastidio all'apertura)
-                        if (deveSuonare && navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                        if (!initialLoad && navigator.vibrate) navigator.vibrate([200, 100, 200]);
 
-                        // Aggiunge al Centro Notifiche laterale
+                        // Aggiunge al Centro Notifiche
                         if (typeof notifHistory !== 'undefined') {
                             let notifObj = {
-                                id: change.doc.id, // Usiamo l'ID di Firebase per evitare duplicati
+                                id: docId,
                                 text: `<b style="color:#d97706;">${initialLoad ? 'SOSPESA' : 'NUOVA'}: ${tipoRichiesta}</b><br>${testoPopup}`,
                                 read: false,
-                                date: new Date().toLocaleString('it-IT')
+                                date: new Date().toLocaleString('it-IT'),
+                                type: 'new_request'
                             };
-                            
-                            // Evitiamo di aggiungere la stessa notifica se già presente
-                            if (!notifHistory.find(n => n.id === change.doc.id)) {
+                            if (!notifHistory.find(n => n.id === docId)) {
                                 notifHistory.unshift(notifObj);
                                 if (typeof saveNotifications === 'function') saveNotifications();
                                 if (typeof updateBadge === 'function') updateBadge();
                             }
-
                             let notifModal = document.getElementById('notif-center-modal');
                             if (notifModal && notifModal.classList.contains('open') && typeof renderNotifList === 'function') {
                                 renderNotifList();
                             }
                         }
                     }
+                    
+                    // Salva stato iniziale
+                    previousRequestsState[docId] = { insertedInShifts: richiesta.insertedInShifts || false };
+                }
+
+                // ─── 2. RICHIESTA MODIFICATA → controlla se è stata inserita nei turni ───
+                if (change.type === "modified" && userName) {
+                    const prevState = previousRequestsState[docId];
+                    const wasInserted = prevState ? prevState.insertedInShifts : false;
+                    const nowInserted = richiesta.insertedInShifts === true;
+
+                    // Se insertedInShifts è passato da false a true
+                    if (!wasInserted && nowInserted) {
+                        let nomeRichiedente = richiesta.name || 'N/D';
+                        let tipoRaw = richiesta.type || 'N/D';
+                        let tipoRichiesta = TIPO_LABELS[tipoRaw] || tipoRaw.replace(/_/g, ' ').toUpperCase();
+                        let dataDal = richiesta.dateFrom ? new Date(richiesta.dateFrom).toLocaleDateString('it-IT') : 'N/D';
+                        let dataAl = richiesta.dateTo ? new Date(richiesta.dateTo).toLocaleDateString('it-IT') : dataDal;
+                        let insertedAt = richiesta.insertedAt ? new Date(richiesta.insertedAt).toLocaleDateString('it-IT') : new Date().toLocaleDateString('it-IT');
+
+                        // Notifica SOLO all'operatore che ha fatto la richiesta
+                        if (nomeRichiedente.toLowerCase() === userName.toLowerCase()) {
+                            let testoInserita = `
+                                <div style="background:#dcfce7; border:1px solid #86efac; border-radius:10px; padding:12px; margin-top:10px;">
+                                    <b style="color:#059669;">✓ Inserita nei turni il ${insertedAt}</b><br>
+                                    <b style="color:#166534;">Tipo:</b> ${tipoRichiesta}<br>
+                                    <b style="color:#166534;">Periodo:</b> dal ${dataDal} al ${dataAl}
+                                </div>
+                            `;
+
+                            // Popup
+                            let alertTitle = document.getElementById('alert-title-text');
+                            let alertMsg = document.getElementById('alert-message-text');
+                            let alertModal = document.getElementById('alert-modal');
+                            if (alertTitle && alertMsg && alertModal) {
+                                alertTitle.innerHTML = `✅ RICHIESTA INSERITA NEI TURNI`;
+                                alertMsg.innerHTML = `La tua richiesta è stata elaborata e inserita nei turni:` + testoInserita;
+                                alertModal.style.display = 'flex';
+                                setTimeout(() => alertModal.classList.add('open'), 50);
+                            }
+                            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+                            // Centro Notifiche
+                            if (typeof notifHistory !== 'undefined') {
+                                let notifObj = {
+                                    id: 'inserted_' + docId + '_' + Date.now(),
+                                    text: `<b style="color:#059669;">✅ RICHIESTA INSERITA</b><br>${testoInserita}`,
+                                    read: false,
+                                    date: new Date().toLocaleString('it-IT'),
+                                    type: 'request_inserted'
+                                };
+                                notifHistory.unshift(notifObj);
+                                if (typeof saveNotifications === 'function') saveNotifications();
+                                if (typeof updateBadge === 'function') updateBadge();
+                                let notifModal = document.getElementById('notif-center-modal');
+                                if (notifModal && notifModal.classList.contains('open') && typeof renderNotifList === 'function') {
+                                    renderNotifList();
+                                }
+                            }
+                        }
+                    }
+
+                    // Aggiorna stato precedente
+                    previousRequestsState[docId] = { insertedInShifts: nowInserted };
+                }
+
+                // Traccia anche i doc aggiunti per il confronto futuro
+                if (change.type === "added") {
+                    previousRequestsState[docId] = { insertedInShifts: richiesta.insertedInShifts || false };
                 }
             });
             
-            initialLoad = false; // Da qui in poi, le nuove richieste faranno vibrare il telefono
+            initialLoad = false;
         });
     </script>
    
