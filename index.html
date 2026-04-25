@@ -3054,196 +3054,234 @@
         function renderSpecial(text, cssClass) {
             return `<div class="cell ${cssClass}">${text}</div>`;
         }
-      // =========================================================
-        // INTEGRAZIONE FIREBASE - SISTEMA NOTIFICHE COMPLETO
-        // =========================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyAMX2ycf_6P3AcBvarVX4XNKbdposkuqgE",
-            authDomain: "area-personale-autsocc-118-rsm.firebaseapp.com",
-            projectId: "area-personale-autsocc-118-rsm",
-            storageBucket: "area-personale-autsocc-118-rsm.firebasestorage.app",
-            messagingSenderId: "910283994567",
-            appId: "1:910283994567:web:d9c45b5f4b5a83b92595e2",
-            measurementId: "G-9P8X82Y4H5"
-        };
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+     // PATCH — Notifiche richieste turni: popup una sola volta
+// Sostituisce il blocco Firebase onSnapshot in index.html
+ 
+// =========================================================
+// INTEGRAZIONE FIREBASE - SISTEMA NOTIFICHE COMPLETO
+// =========================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyAMX2ycf_6P3AcBvarVX4XNKbdposkuqgE",
+    authDomain: "area-personale-autsocc-118-rsm.firebaseapp.com",
+    projectId: "area-personale-autsocc-118-rsm",
+    storageBucket: "area-personale-autsocc-118-rsm.firebasestorage.app",
+    messagingSenderId: "910283994567",
+    appId: "1:910283994567:web:d9c45b5f4b5a83b92595e2",
+    measurementId: "G-9P8X82Y4H5"
+};
+ 
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+let initialLoad = true;
+let previousRequestsState = {};
+ 
+// ─── CHIAVE localStorage per richieste già notificate ───
+const SEEN_REQUESTS_KEY = 'seen_request_popup_ids';
+ 
+function getSeenRequestIds() {
+    try {
+        return new Set(JSON.parse(localStorage.getItem(SEEN_REQUESTS_KEY) || '[]'));
+    } catch(e) { return new Set(); }
+}
+ 
+function markRequestAsSeen(docId) {
+    try {
+        let seen = getSeenRequestIds();
+        seen.add(docId);
+        // Teniamo solo gli ultimi 200 ID per non gonfiare il localStorage
+        let arr = [...seen];
+        if (arr.length > 200) arr = arr.slice(arr.length - 200);
+        localStorage.setItem(SEEN_REQUESTS_KEY, JSON.stringify(arr));
+    } catch(e) {}
+}
+ 
+function isRequestAlreadySeen(docId) {
+    return getSeenRequestIds().has(docId);
+}
+ 
+const TIPO_LABELS = {
+    "copertura_reperibilita": "Copertura Reperibilità",
+    "ferie": "Ferie", "ferie_anno_prec": "Ferie Anno Prec.",
+    "permesso_ore": "Permesso Ore", "permesso": "Permesso",
+    "cambio_reperibilita": "Cambio Reperibilità", "cambio_turno": "Cambio Turno",
+    "recupero_ore": "Recupero Ore", "permesso_matrimonio": "Permesso Matrimonio",
+    "permesso_studio": "Permesso Studio", "permesso_sportivo": "Permesso Sportivo",
+    "permesso_notte": "Permesso Notte", "aspettativa": "Aspettativa",
+    "permesso_lutto": "Permesso Lutto"
+};
+ 
+const RICHIESTE_APP_URL = "https://centrale118rsm-code.github.io/Richieste-A.S.-118/";
+ 
+function buildRequestCard(richiesta, docId) {
+    let nomeRichiedente = richiesta.name || 'N/D';
+    let tipoRaw = richiesta.type || 'N/D';
+    let tipoRichiesta = TIPO_LABELS[tipoRaw] || tipoRaw.replace(/_/g, ' ').toUpperCase();
+    let dataDal = richiesta.dateFrom ? new Date(richiesta.dateFrom).toLocaleDateString('it-IT') : 'N/D';
+    let dataAl = richiesta.dateTo ? new Date(richiesta.dateTo).toLocaleDateString('it-IT') : dataDal;
+    let note = richiesta.notes || '-';
+    let swap = richiesta.swapWith ? `<br><b style="color:#b45309;">Cambio con:</b> ${richiesta.swapWith}` : '';
+    let timeSlot = richiesta.timeSlot ? `<br><b style="color:#b45309;">Fascia:</b> ${richiesta.timeSlot}` : '';
+    let effectiveDays = (richiesta.effectiveDays && richiesta.effectiveDays !== 'N/A') ? `<br><b style="color:#b45309;">Giorni:</b> ${richiesta.effectiveDays}` : '';
+ 
+    return { nomeRichiedente, tipoRichiesta, html: `
+        <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:12px; margin-top:8px;">
+            <b style="color:#b45309;">Da:</b> ${nomeRichiedente}<br>
+            <b style="color:#b45309;">Tipo:</b> ${tipoRichiesta} ${swap}${timeSlot}<br>
+            <b style="color:#b45309;">Periodo:</b> dal ${dataDal} al ${dataAl}${effectiveDays}<br>
+            <b style="color:#b45309;">Note:</b> ${note}
+            <div style="margin-top:10px;text-align:right">
+                <a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#2563eb;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;box-shadow:0 2px 6px rgba(37,99,235,0.3)">
+                    <span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste
+                </a>
+            </div>
+        </div>
+    `};
+}
+ 
+db.collection('richieste_turni').onSnapshot((snapshot) => {
+    const userName = turniUserName;
+    const isOperatore = (userName === 'Pazzaglia' || userName === 'Barbieri');
+ 
+    let pendingNewRequests = [];
+    let pendingNotifs = [];
+ 
+    snapshot.docChanges().forEach((change) => {
+        const richiesta = change.doc.data();
+        const docId = change.doc.id;
+ 
+        // ─── 1. NUOVA RICHIESTA → notifica a Pazzaglia e Barbieri ───
+        if (change.type === "added" && !richiesta.insertedInShifts && !richiesta.obscured && userName && isOperatore) {
+ 
+            const card = buildRequestCard(richiesta, docId);
+ 
+            // Aggiunge al centro notifiche solo se non già presente
+            if (!notifHistory.find(n => n.id === docId)) {
+                let notifObj = {
+                    id: docId,
+                    text: `<b style="color:#d97706;">${initialLoad ? 'SOSPESA' : 'NUOVA'}: ${card.tipoRichiesta}</b><br>${card.html}`,
+                    read: false,
+                    date: new Date().toLocaleString('it-IT'),
+                    type: 'new_request'
+                };
+                pendingNotifs.push(notifObj);
+            }
+ 
+            // ─── POPUP: solo se questa richiesta NON è mai stata mostrata prima ───
+            if (!isRequestAlreadySeen(docId)) {
+                pendingNewRequests.push({
+                    richiesta,
+                    docId,
+                    card,
+                    timestamp: richiesta.timestamp || ''
+                });
+            }
         }
-        const db = firebase.firestore();
-        let initialLoad = true;
-        let previousRequestsState = {};
-
-        const TIPO_LABELS = {
-            "copertura_reperibilita": "Copertura Reperibilità",
-            "ferie": "Ferie", "ferie_anno_prec": "Ferie Anno Prec.",
-            "permesso_ore": "Permesso Ore", "permesso": "Permesso",
-            "cambio_reperibilita": "Cambio Reperibilità", "cambio_turno": "Cambio Turno",
-            "recupero_ore": "Recupero Ore", "permesso_matrimonio": "Permesso Matrimonio",
-            "permesso_studio": "Permesso Studio", "permesso_sportivo": "Permesso Sportivo",
-            "permesso_notte": "Permesso Notte", "aspettativa": "Aspettativa",
-            "permesso_lutto": "Permesso Lutto"
-        };
-
-        const RICHIESTE_APP_URL = "https://centrale118rsm-code.github.io/Richieste-A.S.-118/";
-
-        function buildRequestCard(richiesta, docId) {
-            let nomeRichiedente = richiesta.name || 'N/D';
-            let tipoRaw = richiesta.type || 'N/D';
-            let tipoRichiesta = TIPO_LABELS[tipoRaw] || tipoRaw.replace(/_/g, ' ').toUpperCase();
-            let dataDal = richiesta.dateFrom ? new Date(richiesta.dateFrom).toLocaleDateString('it-IT') : 'N/D';
-            let dataAl = richiesta.dateTo ? new Date(richiesta.dateTo).toLocaleDateString('it-IT') : dataDal;
-            let note = richiesta.notes || '-';
-            let swap = richiesta.swapWith ? `<br><b style="color:#b45309;">Cambio con:</b> ${richiesta.swapWith}` : '';
-            let timeSlot = richiesta.timeSlot ? `<br><b style="color:#b45309;">Fascia:</b> ${richiesta.timeSlot}` : '';
-            let effectiveDays = (richiesta.effectiveDays && richiesta.effectiveDays !== 'N/A') ? `<br><b style="color:#b45309;">Giorni:</b> ${richiesta.effectiveDays}` : '';
-
-            return { nomeRichiedente, tipoRichiesta, html: `
-                <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:12px; margin-top:8px;">
-                    <b style="color:#b45309;">Da:</b> ${nomeRichiedente}<br>
-                    <b style="color:#b45309;">Tipo:</b> ${tipoRichiesta} ${swap}${timeSlot}<br>
-                    <b style="color:#b45309;">Periodo:</b> dal ${dataDal} al ${dataAl}${effectiveDays}<br>
-                    <b style="color:#b45309;">Note:</b> ${note}
-                    <div style="margin-top:10px;text-align:right">
-                        <a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#2563eb;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;box-shadow:0 2px 6px rgba(37,99,235,0.3)">
-                            <span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste
-                        </a>
-                    </div>
-                </div>
-            `};
-        }
-
-        db.collection('richieste_turni').onSnapshot((snapshot) => {
-            const userName = turniUserName;
-            const isOperatore = (userName === 'Pazzaglia' || userName === 'Barbieri');
-            
-            // Raccolta batch per il primo caricamento
-            let pendingNewRequests = [];
-            let pendingNotifs = [];
-
-            snapshot.docChanges().forEach((change) => {
-                const richiesta = change.doc.data();
-                const docId = change.doc.id;
-
-                // ─── 1. NUOVA RICHIESTA → notifica a Pazzaglia e Barbieri ───
-                if (change.type === "added" && !richiesta.insertedInShifts && !richiesta.obscured && userName && isOperatore) {
-                    
-                    const card = buildRequestCard(richiesta, docId);
-                    
-                    // Aggiungi al centro notifiche (sempre)
-                    if (typeof notifHistory !== 'undefined' && !notifHistory.find(n => n.id === docId)) {
-                        let notifObj = {
-                            id: docId,
-                            text: `<b style="color:#d97706;">${initialLoad ? 'SOSPESA' : 'NUOVA'}: ${card.tipoRichiesta}</b><br>${card.html}`,
+ 
+        // ─── 2. RICHIESTA INSERITA NEI TURNI → notifica al richiedente ───
+        if (change.type === "modified" && userName) {
+            const prevState = previousRequestsState[docId];
+            const wasInserted = prevState ? prevState.insertedInShifts : false;
+            const nowInserted = richiesta.insertedInShifts === true;
+ 
+            if (!wasInserted && nowInserted) {
+                let nomeRichiedente = richiesta.name || 'N/D';
+                let tipoRaw = richiesta.type || 'N/D';
+                let tipoRichiesta = TIPO_LABELS[tipoRaw] || tipoRaw.replace(/_/g, ' ').toUpperCase();
+                let dataDal = richiesta.dateFrom ? new Date(richiesta.dateFrom).toLocaleDateString('it-IT') : 'N/D';
+                let dataAl = richiesta.dateTo ? new Date(richiesta.dateTo).toLocaleDateString('it-IT') : dataDal;
+                let insertedAt = richiesta.insertedAt ? new Date(richiesta.insertedAt).toLocaleDateString('it-IT') : new Date().toLocaleDateString('it-IT');
+                let insertedKey = 'inserted_' + docId;
+ 
+                // Popup inserimento: anche questo solo una volta
+                if (nomeRichiedente.toLowerCase() === userName.toLowerCase() && !isRequestAlreadySeen(insertedKey)) {
+                    let testoInserita = `
+                        <div style="background:#dcfce7; border:1px solid #86efac; border-radius:10px; padding:12px; margin-top:8px;">
+                            <b style="color:#059669;">✓ Inserita nei turni il ${insertedAt}</b><br>
+                            <b style="color:#166534;">Tipo:</b> ${tipoRichiesta}<br>
+                            <b style="color:#166534;">Periodo:</b> dal ${dataDal} al ${dataAl}
+                            <div style="margin-top:10px;text-align:right">
+                                <a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#059669;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;box-shadow:0 2px 6px rgba(5,150,105,0.3)">
+                                    <span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste
+                                </a>
+                            </div>
+                        </div>`;
+ 
+                    let alertModal = document.getElementById('alert-modal');
+                    if (alertModal) {
+                        document.getElementById('alert-title-text').innerHTML = `✅ RICHIESTA INSERITA NEI TURNI`;
+                        document.getElementById('alert-message-text').innerHTML = `La tua richiesta è stata elaborata:` + testoInserita;
+                        alertModal.style.display = 'flex';
+                        setTimeout(() => alertModal.classList.add('open'), 50);
+                    }
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                    markRequestAsSeen(insertedKey);
+ 
+                    if (!notifHistory.find(n => n.id === insertedKey)) {
+                        notifHistory.unshift({
+                            id: insertedKey,
+                            text: `<b style="color:#059669;">✅ RICHIESTA INSERITA</b><br>${testoInserita}`,
                             read: false,
                             date: new Date().toLocaleString('it-IT'),
-                            type: 'new_request'
-                        };
-                        pendingNotifs.push(notifObj);
+                            type: 'request_inserted'
+                        });
+                        if (typeof saveNotifications === 'function') saveNotifications();
+                        if (typeof updateBadge === 'function') updateBadge();
                     }
-
-                    // Salva per popup
-                    pendingNewRequests.push({ richiesta, docId, card, timestamp: richiesta.timestamp || '' });
-                }
-
-                // ─── 2. RICHIESTA INSERITA NEI TURNI → notifica al richiedente ───
-                if (change.type === "modified" && userName) {
-                    const prevState = previousRequestsState[docId];
-                    const wasInserted = prevState ? prevState.insertedInShifts : false;
-                    const nowInserted = richiesta.insertedInShifts === true;
-
-                    if (!wasInserted && nowInserted) {
-                        let nomeRichiedente = richiesta.name || 'N/D';
-                        let tipoRaw = richiesta.type || 'N/D';
-                        let tipoRichiesta = TIPO_LABELS[tipoRaw] || tipoRaw.replace(/_/g, ' ').toUpperCase();
-                        let dataDal = richiesta.dateFrom ? new Date(richiesta.dateFrom).toLocaleDateString('it-IT') : 'N/D';
-                        let dataAl = richiesta.dateTo ? new Date(richiesta.dateTo).toLocaleDateString('it-IT') : dataDal;
-                        let insertedAt = richiesta.insertedAt ? new Date(richiesta.insertedAt).toLocaleDateString('it-IT') : new Date().toLocaleDateString('it-IT');
-
-                        if (nomeRichiedente.toLowerCase() === userName.toLowerCase()) {
-                            let testoInserita = `
-                                <div style="background:#dcfce7; border:1px solid #86efac; border-radius:10px; padding:12px; margin-top:8px;">
-                                    <b style="color:#059669;">✓ Inserita nei turni il ${insertedAt}</b><br>
-                                    <b style="color:#166534;">Tipo:</b> ${tipoRichiesta}<br>
-                                    <b style="color:#166534;">Periodo:</b> dal ${dataDal} al ${dataAl}
-                                    <div style="margin-top:10px;text-align:right">
-                                        <a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#059669;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;box-shadow:0 2px 6px rgba(5,150,105,0.3)">
-                                            <span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste
-                                        </a>
-                                    </div>
-                                </div>`;
-
-                            let alertModal = document.getElementById('alert-modal');
-                            if (alertModal) {
-                                document.getElementById('alert-title-text').innerHTML = `✅ RICHIESTA INSERITA NEI TURNI`;
-                                document.getElementById('alert-message-text').innerHTML = `La tua richiesta è stata elaborata:` + testoInserita;
-                                alertModal.style.display = 'flex';
-                                setTimeout(() => alertModal.classList.add('open'), 50);
-                            }
-                            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-
-                            if (typeof notifHistory !== 'undefined') {
-                                notifHistory.unshift({
-                                    id: 'inserted_' + docId + '_' + Date.now(),
-                                    text: `<b style="color:#059669;">✅ RICHIESTA INSERITA</b><br>${testoInserita}`,
-                                    read: false,
-                                    date: new Date().toLocaleString('it-IT'),
-                                    type: 'request_inserted'
-                                });
-                                if (typeof saveNotifications === 'function') saveNotifications();
-                                if (typeof updateBadge === 'function') updateBadge();
-                            }
-                        }
-                    }
-                    previousRequestsState[docId] = { insertedInShifts: nowInserted };
-                }
-
-                // Traccia stato per confronti futuri
-                if (change.type === "added") {
-                    previousRequestsState[docId] = { insertedInShifts: richiesta.insertedInShifts || false };
-                }
-            });
-
-            // ─── MOSTRA POPUP: solo l'ultima richiesta (la più recente) ───
-            if (pendingNewRequests.length > 0 && isOperatore) {
-                // Ordina per timestamp desc, prendi solo l'ultima
-                pendingNewRequests.sort((a,b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
-                const latest = pendingNewRequests[0];
-                const totalPending = pendingNewRequests.length;
-                
-                let alertModal = document.getElementById('alert-modal');
-                if (alertModal) {
-                    let extraMsg = totalPending > 1 
-                        ? `<div style="margin-top:8px;font-size:0.78rem;color:var(--text-sec);text-align:center;font-weight:600">
-                            + altre ${totalPending - 1} richieste in sospeso — vedi il <span style="color:var(--primary);cursor:pointer" onclick="closeAlertAndSave();openNotifCenter()">Centro Notifiche</span>
-                           </div>` 
-                        : '';
-
-                    document.getElementById('alert-title-text').innerHTML = initialLoad 
-                        ? `⏳ ${totalPending} RICHIESTA${totalPending>1?'E':''} IN SOSPESO` 
-                        : `⚠️ NUOVA RICHIESTA RICEVUTA`;
-                    document.getElementById('alert-message-text').innerHTML = 
-                        (initialLoad ? `Ultima richiesta non ancora gestita:` : `Un operatore ha appena inviato una richiesta:`) 
-                        + latest.card.html + extraMsg;
-                    alertModal.style.display = 'flex';
-                    setTimeout(() => alertModal.classList.add('open'), 50);
-                }
-                if (!initialLoad && navigator.vibrate) navigator.vibrate([200, 100, 200]);
-            }
-
-            // Inserisci tutte le notifiche nel centro notifiche
-            if (pendingNotifs.length > 0) {
-                pendingNotifs.forEach(n => notifHistory.unshift(n));
-                if (typeof saveNotifications === 'function') saveNotifications();
-                if (typeof updateBadge === 'function') updateBadge();
-                let notifModal = document.getElementById('notif-center-modal');
-                if (notifModal && notifModal.classList.contains('open') && typeof renderNotifList === 'function') {
-                    renderNotifList();
                 }
             }
-
-            initialLoad = false;
-        });
+            previousRequestsState[docId] = { insertedInShifts: nowInserted };
+        }
+ 
+        if (change.type === "added") {
+            previousRequestsState[docId] = { insertedInShifts: richiesta.insertedInShifts || false };
+        }
+    });
+ 
+    // ─── MOSTRA POPUP: solo l'ultima richiesta NON ANCORA VISTA ───
+    if (pendingNewRequests.length > 0 && isOperatore) {
+        pendingNewRequests.sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
+        const latest = pendingNewRequests[0];
+        const totalPending = pendingNewRequests.length;
+ 
+        let alertModal = document.getElementById('alert-modal');
+        if (alertModal) {
+            let extraMsg = totalPending > 1
+                ? `<div style="margin-top:8px;font-size:0.78rem;color:var(--text-sec);text-align:center;font-weight:600">
+                    + altre ${totalPending - 1} nuov${totalPending - 1 === 1 ? 'a' : 'e'} — vedi il <span style="color:var(--primary);cursor:pointer" onclick="closeAlertAndSave();openNotifCenter()">Centro Notifiche</span>
+                   </div>`
+                : '';
+ 
+            document.getElementById('alert-title-text').innerHTML = initialLoad
+                ? `⏳ ${totalPending} RICHIESTA${totalPending > 1 ? 'E' : ''} IN SOSPESO`
+                : `⚠️ NUOVA RICHIESTA RICEVUTA`;
+            document.getElementById('alert-message-text').innerHTML =
+                (initialLoad ? `Ultima richiesta non ancora gestita:` : `Un operatore ha appena inviato una richiesta:`)
+                + latest.card.html + extraMsg;
+            alertModal.style.display = 'flex';
+            setTimeout(() => alertModal.classList.add('open'), 50);
+        }
+        if (!initialLoad && navigator.vibrate) navigator.vibrate([200, 100, 200]);
+ 
+        // ─── Marca TUTTE le richieste mostrate come "viste" ───
+        pendingNewRequests.forEach(r => markRequestAsSeen(r.docId));
+    }
+ 
+    // Inserisce notifiche nel centro notifiche
+    if (pendingNotifs.length > 0) {
+        pendingNotifs.forEach(n => notifHistory.unshift(n));
+        if (typeof saveNotifications === 'function') saveNotifications();
+        if (typeof updateBadge === 'function') updateBadge();
+        let notifModal = document.getElementById('notif-center-modal');
+        if (notifModal && notifModal.classList.contains('open') && typeof renderNotifList === 'function') {
+            renderNotifList();
+        }
+    }
+ 
+    initialLoad = false;
+});
+ 
 
 // --- LISTENER APPUNTAMENTI VEICOLI (COLLEGATO AL GESTIONALE REALE) ---
         db.collection('gestionale_118').doc('tickets').onSnapshot((docSnapshot) => {
