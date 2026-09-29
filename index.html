@@ -2305,6 +2305,20 @@
             "R": "RIPOSO", "RIP": "RIPOSO"
         };
 
+        // Orari diurnisti (codici minuscoli "m"/"p" nel file Excel).
+        // Dal 6 ottobre 2026: mattino 7:00-13:00, pomeriggio 13:00-19:00.
+        // Prima di quella data restano i vecchi orari 6:30-13:42 / 13:15-20:27.
+        const DIURNO_CAMBIO_ORARIO = new Date(2026, 9, 6);
+        function getDiurnoTime(firstChar, mName, dNum, sep) {
+            sep = sep || "-";
+            let mIdx = MONTH_MAP[(mName || "").toString().toUpperCase().trim()];
+            let d = parseInt(dNum);
+            let nuovoOrario = (mIdx !== undefined && !isNaN(d)) && new Date(2026, mIdx, d) >= DIURNO_CAMBIO_ORARIO;
+            if (firstChar === 'm') return nuovoOrario ? `7:00${sep}13:00` : `6:30${sep}13:42`;
+            if (firstChar === 'p') return nuovoOrario ? `13:00${sep}19:00` : `13:15${sep}20:27`;
+            return "";
+        }
+
         let finalData = [];
         let drivers = [];
         let selectedDrivers = new Set();
@@ -3625,7 +3639,7 @@
                     // nel file): serve conoscere la cella del giorno precedente per colorare anche
                     // il secondo giorno.
                     let prevCellInfo = (i > 1 && finalData[i - 1]) ? finalData[i - 1][d.idx] : null;
-                    td.innerHTML = formatCell(cellInfo, showDog, showAmbulance, vehicleTasks, repBarHtml, prevCellInfo);
+                    td.innerHTML = formatCell(cellInfo, showDog, showAmbulance, vehicleTasks, repBarHtml, prevCellInfo, mName, dNum);
                     
                     if(["M", "P", "N", "R", "MN", "SM"].includes(sType)) {
                         if (cellNotesForRecipient.length > 0) {
@@ -3837,11 +3851,8 @@
                     let isDiurno = false;
 
                     // Controlliamo se la prima lettera è minuscola (Diurnista)
-                    if (firstChar === 'm') {
-                        specificTime = "6:30 \u2013 13:42";
-                        isDiurno = true;
-                    } else if (firstChar === 'p') {
-                        specificTime = "13:15 \u2013 20:27";
+                    if (firstChar === 'm' || firstChar === 'p') {
+                        specificTime = getDiurnoTime(firstChar, month, day, " \u2013 ");
                         isDiurno = true;
                     }
 
@@ -4040,7 +4051,7 @@
             return null; 
         }
 
-        function formatCell(info, showDog, showAmbulance, vehicleTasks, repBarHtml, prevInfo) {
+        function formatCell(info, showDog, showAmbulance, vehicleTasks, repBarHtml, prevInfo, mName, dNum) {
             let val = info.v ? info.v.toString().trim() : "";
             let color = info.c || "";
             let subColor = info.subC || ""; 
@@ -4111,13 +4122,8 @@
             let firstChar = rawVal.charAt(0);
 
             if (firstChar === 'm' || firstChar === 'p') {
-                if (firstChar === 'm') {
-                    display = "MATTINA";
-                    time = "6:30-13:42";
-                } else {
-                    display = "POMERIGGIO";
-                    time = "13:15-20:27";
-                }
+                display = (firstChar === 'm') ? "MATTINA" : "POMERIGGIO";
+                time = getDiurnoTime(firstChar, mName, dNum, "-");
                 cls += " t-diurno"; 
             } else {
                 if(u.startsWith("M")) { display = "MATTINA"; cls += " t-M"; }
