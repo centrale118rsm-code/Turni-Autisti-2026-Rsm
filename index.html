@@ -699,58 +699,148 @@
         }
         .admin-save-btn.reset { background: var(--bg); color: var(--text-sec); border: 1px solid var(--border); margin-top: 8px; }
 
-        /* AREA ADMIN — scheda Reperibilità (modifica manuale di titolare e fasce) */
-        .admin-rep-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-        .admin-rep-nav input[type="date"] {
-            flex: 1; min-width: 0; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--border);
-            background: var(--bg); color: var(--text-main); font-weight: 800; font-size: 0.9rem; font-family: inherit; text-align: center;
+        /* ══ MODIFICA REPERIBILITÀ sul calendario (ruota strumenti, come per gli infermieri) ══ */
+        .cc-scope {
+            --cc-ink:#16212e; --cc-ink-2:#1f2d3d; --cc-ink-line:#2c3b4e; --cc-ink-text:#d3dbe4; --cc-ink-muted:#8a9aad;
+            --cc-surface:#ffffff; --cc-surface-2:#f6f7f9; --cc-line:#dfe5ee; --cc-line-2:#edf1f6;
+            --cc-text:#18202b; --cc-muted:#5c6776; --cc-accent:#1d4ed8; --cc-accent-hover:#1e40af; --cc-accent-soft:#e8efff;
+            --cc-neg:#b3261e; --cc-neg-soft:#fae9e7; --cc-r:14px;
+            --cc-font:'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; --cc-font-c:'Inter', system-ui, sans-serif;
+            font-family:var(--cc-font); color:var(--cc-text); font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;
         }
-        .admin-rep-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-sec); margin-bottom: 8px; line-height: 1.35; }
-        .admin-rep-live { display: inline-flex; align-items: center; gap: 5px; background: var(--coral-soft); color: var(--coral); font-weight: 800; font-size: 0.68rem; padding: 3px 9px; border-radius: 999px; }
-        .admin-rep-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); animation: rep-now-pulse 1.8s ease-in-out infinite; }
-        .admin-rep-info { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 2px 8px; font-size: 0.68rem; }
-        .admin-rep-row { display: grid; grid-template-columns: 118px 1fr; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
-        .admin-rep-row.tit { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px; margin-bottom: 4px; }
-        .admin-rep-row label { font-size: 0.8rem; font-weight: 800; color: var(--text-main); line-height: 1.2; }
-        .admin-rep-row label small { display: block; font-size: 0.66rem; font-weight: 600; color: var(--text-sec); margin-top: 1px; text-transform: capitalize; }
-        .admin-rep-row select {
-            width: 100%; min-width: 0; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
-            background: var(--bg-card); color: var(--text-main); font-weight: 700; font-size: 0.85rem; font-family: inherit;
+        body.dark-mode .cc-scope {
+            --cc-ink:#0b1118; --cc-ink-2:#131c26; --cc-ink-line:#223040; --cc-ink-text:#d3dbe4; --cc-ink-muted:#7d8ca0;
+            --cc-surface:#161e28; --cc-surface-2:#1b2430; --cc-line:#2a3544; --cc-line-2:#222c38;
+            --cc-text:#e3e8ee; --cc-muted:#93a0b0; --cc-accent:#6f9bff; --cc-accent-hover:#8fb2ff; --cc-accent-soft:#18264a;
+            --cc-neg:#f0857c; --cc-neg-soft:#3a1a18;
         }
-        .admin-rep-row.ceduta select { border-color: #dc2626; box-shadow: inset 3px 0 0 #dc2626; color: #b91c1c; }
-        .admin-rep-out { font-size: 0.75rem; color: var(--text-sec); font-weight: 600; }
-        .admin-rep-src { display: inline-block; font-size: 0.56rem; font-weight: 800; padding: 1px 6px; border-radius: 5px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.3px; flex-shrink: 0; }
-        .admin-rep-src.excel { background: #e2e8f0; color: #475569; }
-        .admin-rep-src.richieste { background: #dbeafe; color: #1e40af; }
-        .admin-rep-src.manuale { background: #ede9fe; color: #6d28d9; }
-        .admin-rep-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-        .admin-rep-btns button {
-            flex: 1; min-width: 110px; padding: 12px 10px; border-radius: 12px; border: 1px solid var(--border);
-            background: var(--bg); color: var(--text-main); font-weight: 800; font-size: 0.8rem; font-family: inherit;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
-        }
-        .admin-rep-btns button .material-icons-round { font-size: 18px; }
-        .admin-rep-btns button.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
-        .admin-rep-btns button.danger { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
-        .admin-rep-btns button:active { transform: scale(0.97); }
-        .admin-rep-status { margin-top: 10px; padding: 9px 12px; border-radius: 10px; background: #dcfce7; color: #15803d; font-size: 0.8rem; font-weight: 800; }
-        .admin-rep-note { margin-top: 10px; font-size: 0.72rem; line-height: 1.4; color: var(--text-sec); }
-        .admin-rep-month-title { flex: 1; text-align: center; font-weight: 900; font-size: 1rem; color: var(--text-main); text-transform: capitalize; }
-        .admin-rep-month-title small { display: block; font-size: 0.66rem; font-weight: 600; color: var(--text-sec); text-transform: none; margin-top: 2px; }
-        .admin-rep-day {
-            display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 6px;
-            border-radius: 10px; border: 1px solid var(--border); background: var(--bg); cursor: pointer;
-        }
-        .admin-rep-day:active { transform: scale(0.99); }
-        .admin-rep-day.sel { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
-        .admin-rep-day.today .admin-rep-dnum { color: var(--primary); }
-        .admin-rep-dnum { width: 40px; flex-shrink: 0; text-align: center; font-weight: 900; font-size: 1rem; line-height: 1; color: var(--navy-mid); }
-        .admin-rep-dnum small { display: block; font-size: 0.55rem; font-weight: 700; color: var(--text-sec); margin-top: 2px; }
-        .admin-rep-day.weekend .admin-rep-dnum, .admin-rep-day.weekend .admin-rep-dnum small { color: var(--coral); }
-        body.dark-mode .admin-rep-dnum { color: #93b4ff; }
-        .admin-rep-dname { font-weight: 800; font-size: 0.85rem; color: var(--text-main); }
-        .admin-rep-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-        .admin-rep-chip { font-size: 0.62rem; font-weight: 800; background: #fee2e2; color: #991b1b; border-radius: 5px; padding: 1px 6px; }
+        .cc-scope *, .cc-scope *::before, .cc-scope *::after { box-sizing:border-box; }
+        .cc-scope select { -webkit-user-select:text; user-select:text; font-family:inherit; }
+        .msym { font-family:'Material Icons Round'; font-weight:normal; font-style:normal; font-size:20px; line-height:1; letter-spacing:normal; text-transform:none; display:inline-block; white-space:nowrap; direction:ltr; -webkit-font-feature-settings:'liga'; font-feature-settings:'liga'; -webkit-font-smoothing:antialiased; }
+        .cc-btn { height:36px; padding:0 14px; border-radius:10px; border:1px solid var(--cc-line); background:var(--cc-surface); color:var(--cc-text); font:600 13.5px/1 var(--cc-font); cursor:pointer; display:inline-flex; align-items:center; gap:7px; white-space:nowrap; transition:background .12s, border-color .12s; }
+        .cc-btn .msym { font-size:18px; }
+        .cc-btn:hover { background:var(--cc-surface-2); }
+        .cc-btn:disabled { opacity:.45; cursor:default; }
+        .cc-btn.sm { height:30px; padding:0 10px; font-size:12.5px; }
+        .cc-btn.primary { background:var(--cc-accent); border-color:var(--cc-accent); color:#fff; }
+        .cc-btn.primary:hover { background:var(--cc-accent-hover); border-color:var(--cc-accent-hover); }
+        .cc-btn.danger { color:var(--cc-neg); }
+        .cc-btn.danger:hover { background:var(--cc-neg-soft); border-color:var(--cc-neg); }
+        .cc-icon-btn { width:34px; height:34px; border-radius:10px; border:none; background:transparent; color:var(--cc-muted); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; }
+        .cc-icon-btn:hover { background:var(--cc-surface-2); }
+        .cc-input { height:38px; padding:0 11px; border:1px solid var(--cc-line); border-radius:10px; background:var(--cc-surface); color:var(--cc-text); font-size:14px; outline:none; width:100%; }
+        .cc-input:focus { border-color:var(--cc-accent); box-shadow:0 0 0 3px var(--cc-accent-soft); }
+        .cc-input:disabled { opacity:.55; }
+
+        #cc-toast { position:fixed; left:50%; bottom:calc(64px + env(safe-area-inset-bottom,0px)); transform:translate(-50%,8px); z-index:9950; background:var(--cc-ink); color:#fff; padding:10px 16px; border-radius:10px; font-size:13.5px; opacity:0; pointer-events:none; transition:opacity .15s, transform .15s; max-width:calc(100vw - 32px); display:flex; gap:8px; align-items:center; }
+        #cc-toast.show { opacity:1; transform:translate(-50%,0); }
+        #cc-toast.err { background:#b3261e; }
+        #cc-toast .msym { font-size:18px; }
+
+        body.rep-edit-mode .container { padding-bottom:140px; }
+        body.rep-edit-mode #table-body td[data-rep-iso] { cursor:alias; }
+        body.rep-edit-mode #table-body td[data-rep-iso]:hover { outline:2px solid rgba(29,78,216,.45); outline-offset:-2px; }
+        body.rep-edit-mode #table-body td.rep-ed-selected { outline:3px solid #d97706; outline-offset:-3px; position:relative; z-index:50; }
+        body.rep-edit-mode #side-drag-handle { display:none !important; }
+
+        #coord-edit-strip { display:none; position:fixed; left:0; right:0; bottom:0; z-index:2900; background:var(--cc-ink); color:var(--cc-ink-text); padding:0 16px env(safe-area-inset-bottom,0px); }
+        #coord-edit-strip.show { display:block; }
+        .ces-in { display:flex; align-items:center; gap:14px; height:50px; font-size:13.5px; }
+        .ces-mode { display:flex; align-items:center; gap:8px; color:#fff; font-weight:600; white-space:nowrap; }
+        .ces-mode .msym { font-size:18px; color:var(--cc-ink-muted); }
+        .ces-tool { color:var(--cc-ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:1; }
+        .ces-tool b { color:#fff; font-weight:600; }
+        .ces-pending { white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--cc-ink-muted); }
+        .ces-pending.has { color:#f3c77c; }
+        #coord-edit-strip .cc-btn { height:32px; background:transparent; color:#fff; border-color:var(--cc-ink-line); }
+        #coord-edit-strip .cc-btn:hover { background:var(--cc-ink-2); }
+        #coord-edit-strip .cc-btn.primary { background:var(--cc-accent); border-color:var(--cc-accent); }
+        #coord-edit-strip .cc-btn:disabled { opacity:.4; }
+        @media (max-width:640px) { .ces-mode span:last-child { display:none; } .ces-in { gap:10px; } .ces-tool { display:none; } .ces-pending { flex:1; } }
+
+        #tool-wheel { position:fixed; left:0; top:0; width:300px; height:300px; z-index:3000; pointer-events:none; display:none; touch-action:none; }
+        #tool-wheel.show { display:block; }
+        .tw-ring { position:absolute; inset:0; transform-origin:50% 50%; transition:transform .17s cubic-bezier(.2,.7,.3,1), opacity .12s; }
+        #tool-wheel.collapsed .tw-ring { transform:scale(.3); opacity:0; pointer-events:none; }
+        #tool-wheel:not(.collapsed) .tw-ring { pointer-events:none; }
+        .tw-ring svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; filter:drop-shadow(0 8px 22px rgba(12,18,26,.28)); }
+        #tool-wheel:not(.collapsed) .tw-ring svg path.tw-seg { pointer-events:auto; }
+        .tw-seg { cursor:pointer; stroke:var(--cc-ink); stroke-width:1; transition:filter .1s; }
+        .tw-seg:hover { filter:brightness(1.12); }
+        .tw-seg.act { fill:var(--cc-ink-2); }
+        .tw-seg.act:hover { fill:#2a3b50; filter:none; }
+        .tw-seg.act.on { fill:var(--cc-accent); }
+        .tw-seg.act.off { fill:var(--cc-ink); cursor:default; }
+        .tw-seg.sel { stroke:#ffffff; stroke-width:3; }
+        .tw-back { fill:var(--cc-ink); }
+        .tw-labels { position:absolute; inset:0; pointer-events:none; }
+        .tw-lbl { position:absolute; transform:translate(-50%,-50%); font:700 11px/1 var(--cc-font-c); letter-spacing:.01em; text-align:center; white-space:nowrap; }
+        .tw-lbl.ico { color:var(--cc-ink-text); }
+        .tw-lbl.ico .msym { font-size:20px; }
+        .tw-lbl.ico.off { opacity:.3; }
+        .tw-lbl.ico.on { color:#fff; }
+        .tw-hub { position:absolute; left:50%; top:50%; width:var(--tw-hub,72px); height:var(--tw-hub,72px); margin:calc(var(--tw-hub,72px) / -2) 0 0 calc(var(--tw-hub,72px) / -2); border-radius:50%; border:3px solid var(--cc-ink); background:var(--cc-surface); color:var(--cc-text); pointer-events:auto; cursor:grab; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; box-shadow:0 0 0 1px var(--cc-line), 0 6px 16px rgba(12,18,26,.25); padding:0; transition:width .15s, height .15s, margin .15s; font-family:var(--cc-font); }
+        .tw-hub:active { cursor:grabbing; }
+        #tool-wheel.collapsed .tw-hub { width:60px; height:60px; margin:-30px 0 0 -30px; border-color:var(--cc-ink); }
+        .tw-hub-sw { width:30px; height:18px; border-radius:3px; background:var(--sw, transparent); color:var(--sf, var(--cc-text)); font:700 11px/18px var(--cc-font-c); text-align:center; border:1px solid rgba(0,0,0,.1); display:flex; align-items:center; justify-content:center; }
+        .tw-hub-sw .msym { font-size:18px; }
+        .tw-hub-sw.plain { border:none; background:transparent; }
+        .tw-hub-grip { font-size:10px; color:var(--cc-muted); letter-spacing:.02em; line-height:1; }
+        #tool-wheel.collapsed .tw-hub-grip { display:none; }
+        .tw-badge { position:absolute; left:50%; top:50%; margin:-38px 0 0 14px; min-width:20px; height:20px; padding:0 6px; border-radius:10px; background:#c2410c; color:#fff; font:700 11px/20px var(--cc-font); text-align:center; pointer-events:none; display:none; box-shadow:0 0 0 2px var(--cc-surface); }
+        #tool-wheel.collapsed .tw-badge.has { display:block; }
+        .tw-sat { position:absolute; left:50%; top:50%; width:34px; height:34px; margin:4px 0 0 -62px; border-radius:50%; border:1px solid var(--cc-ink-line); background:var(--cc-ink); color:#fff; display:none; align-items:center; justify-content:center; pointer-events:auto; cursor:pointer; box-shadow:0 4px 10px rgba(12,18,26,.25); padding:0; }
+        .tw-sat .msym { font-size:18px; }
+        .tw-sat:disabled { opacity:.35; cursor:default; }
+        #tool-wheel.collapsed .tw-sat { display:flex; }
+        .tw-caption { position:absolute; left:50%; top:calc(100% + 6px); transform:translateX(-50%); background:var(--cc-ink); color:#fff; font:500 12.5px/1.2 var(--cc-font); padding:7px 11px; border-radius:6px; white-space:nowrap; pointer-events:none; box-shadow:0 4px 12px rgba(12,18,26,.25); }
+        #tool-wheel.caption-top .tw-caption { display:none; }
+        #tool-wheel.collapsed .tw-caption { display:none; }
+        .tw-caption small { color:var(--cc-ink-muted); margin-left:6px; font-weight:400; }
+        .tw-bar { position:absolute; left:50%; bottom:calc(100% + 6px); transform:translateX(-50%); display:flex; align-items:center; gap:2px; background:var(--cc-ink); color:#fff; border-radius:8px; padding:3px; pointer-events:auto; box-shadow:0 4px 12px rgba(12,18,26,.25); white-space:nowrap; font-family:var(--cc-font); }
+        #tool-wheel.collapsed .tw-bar { display:none; }
+        .tw-bar-mode { font:700 12.5px/1 var(--cc-font); padding:0 8px; min-width:92px; text-align:center; display:flex; align-items:center; gap:6px; }
+        .tw-bar-mode .msym { font-size:17px; color:#f87171; }
+        .tw-bar-mode small { display:block; font-size:10px; font-weight:400; color:var(--cc-ink-muted); margin-top:2px; }
+        .tw-bar-sep { width:1px; align-self:stretch; background:var(--cc-ink-line); margin:2px 4px; }
+        .tw-bar-sizes { display:flex; gap:2px; }
+        .tw-bar-sizes button { width:26px; height:30px; border:none; border-radius:4px; background:transparent; color:var(--cc-ink-muted); font:700 12px/1 var(--cc-font); cursor:pointer; padding:0; }
+        .tw-bar-sizes button:hover { background:var(--cc-ink-2); color:#fff; }
+        .tw-bar-sizes button.on { background:#fff; color:var(--cc-ink); }
+
+        #rep-edit-popup, #rep-ed-dialog { display:none; position:fixed; inset:0; z-index:9750; background:rgba(12,18,26,.45); align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .14s; }
+        #rep-ed-dialog { z-index:9800; }
+        #rep-edit-popup.open, #rep-ed-dialog.open { opacity:1; }
+        .sep-box { width:100%; max-width:520px; max-height:86vh; display:flex; flex-direction:column; background:var(--cc-surface); border:1px solid var(--cc-line); border-radius:var(--cc-r); box-shadow:0 18px 50px rgba(12,18,26,.25); }
+        .sep-head { display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--cc-line-2); }
+        .sep-head > div { flex:1; min-width:0; }
+        .sep-head b { display:block; font-size:15px; font-weight:700; text-transform:capitalize; }
+        .sep-head small { display:block; font-size:12.5px; color:var(--cc-muted); }
+        .sep-grid { padding:12px 16px 16px; overflow-y:auto; }
+        .sep-foot { display:flex; justify-content:space-between; gap:8px; padding:12px 16px; border-top:1px solid var(--cc-line-2); background:var(--cc-surface-2); border-radius:0 0 var(--cc-r) var(--cc-r); flex-wrap:wrap; }
+        .rep-ed-row { display:grid; grid-template-columns:118px 1fr; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--cc-line-2); }
+        .rep-ed-row:last-child { border-bottom:none; }
+        .rep-ed-row label { font:600 13px/1.25 var(--cc-font); color:var(--cc-text); }
+        .rep-ed-row label small { display:block; color:var(--cc-muted); font-size:11.5px; font-weight:400; }
+        .rep-ed-row select { width:100%; }
+        .rep-ed-row.tit { background:var(--cc-surface-2); margin:0 -16px 6px; padding:10px 16px; }
+        .rep-ed-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:0 0 10px; }
+        .rep-ed-nav .cc-btn { gap:2px; }
+        .rep-ed-live { display:inline-flex; align-items:center; gap:6px; font:700 12px/1 var(--cc-font); color:#b91c1c; background:#fee2e2; padding:5px 10px; border-radius:999px; }
+        .rep-ed-live i { width:7px; height:7px; border-radius:50%; background:#dc2626; animation:rep-now-pulse 1.8s ease-in-out infinite; }
+        .rep-ed-note { font-size:12px; color:var(--cc-muted); margin-top:10px; line-height:1.4; }
+        .rep-ed-slot-ceduta select { border-color:#dc2626; box-shadow:inset 3px 0 0 #dc2626; }
+        .rep-ed-dlg-text { margin:0; font-size:13.5px; color:var(--cc-muted); line-height:1.45; }
+        .rep-ed-dlg-foot { justify-content:flex-end; }
+
+        /* Area Admin → scheda Reperibilità: ingresso alla modalità ruota */
+        .admin-rep-open { display:flex; flex-direction:column; gap:12px; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:18px; }
+        .admin-rep-open h4 { margin:0; font-size:1rem; font-weight:900; color:var(--text-main); display:flex; align-items:center; gap:8px; }
+        .admin-rep-open h4 .material-icons-round { color:#dc2626; }
+        .admin-rep-open p { margin:0; font-size:0.8rem; line-height:1.45; color:var(--text-sec); font-weight:600; }
+        .admin-rep-open ul { margin:0; padding-left:18px; font-size:0.78rem; line-height:1.55; color:var(--text-main); font-weight:600; }
+        .admin-rep-open-btn { width:100%; padding:14px; border-radius:12px; border:none; background:#dc2626; color:#fff; font-weight:900; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+        .admin-rep-open-btn:active { transform:scale(0.98); }
         /* MODALITÀ SCHERZO — overlay "modalità bambino" applicato lato client SOLO
            all'operatore selezionato dall'admin, finché non viene disattivato. */
         body.prank-mode {
@@ -2061,6 +2151,60 @@
     </div>
 
 
+    <!-- ══ MODIFICA REPERIBILITÀ sul calendario: ruota strumenti + striscia in basso ══ -->
+    <div id="cc-toast" class="cc-scope" role="status" aria-live="polite"></div>
+    <div id="tool-wheel" class="cc-scope collapsed" aria-label="Ruota reperibilità">
+        <div class="tw-ring" id="tw-ring"></div>
+        <button class="tw-hub" id="tw-hub" aria-label="Apri o chiudi la ruota. Trascina per spostarla.">
+            <span class="tw-hub-sw" id="tw-hub-sw"></span>
+            <span class="tw-hub-grip">trascina</span>
+        </button>
+        <button class="tw-sat" id="tw-sat-undo" onclick="repEdUndo()" title="Annulla" aria-label="Annulla"><span class="msym">undo</span></button>
+        <span class="tw-badge" id="tw-badge"></span>
+        <div class="tw-caption" id="tw-caption"></div>
+        <div class="tw-bar" id="tw-bar">
+            <span class="tw-bar-mode"><span class="msym">phone_in_talk</span><span>Reperibilità<small>aggiungi, sposta, fasce</small></span></span>
+            <span class="tw-bar-sep"></span>
+            <span class="tw-bar-sizes" role="group" aria-label="Dimensione della ruota">
+                <button data-size="P" onclick="twSetSize('P')" title="Ruota piccola">P</button>
+                <button data-size="M" onclick="twSetSize('M')" title="Ruota media">M</button>
+                <button data-size="G" onclick="twSetSize('G')" title="Ruota grande">G</button>
+            </span>
+        </div>
+    </div>
+    <div id="coord-edit-strip" class="cc-scope">
+        <div class="ces-in">
+            <div class="ces-mode"><span class="msym">edit_calendar</span><span>Modifica reperibilità</span></div>
+            <div class="ces-tool" id="ces-tool"></div>
+            <div class="ces-pending" id="ces-pending"></div>
+            <button class="cc-btn primary" id="ces-save" onclick="repEdSave()"><span class="msym">save</span>Salva</button>
+            <button class="cc-btn" onclick="exitRepEdit()">Esci</button>
+        </div>
+    </div>
+    <!-- Editor reperibilità: titolare del turno 13:00 › 13:00 e chi copre ciascuna delle 4 fasce -->
+    <div id="rep-edit-popup" class="cc-scope" onclick="closeRepEditPopup(event)">
+        <div class="sep-box" onclick="event.stopPropagation()">
+            <div class="sep-head">
+                <div><b id="rep-edit-title">Reperibilità</b><small id="rep-edit-sub"></small></div>
+                <button class="cc-icon-btn" onclick="closeRepEditPopup()" aria-label="Chiudi"><span class="msym">close</span></button>
+            </div>
+            <div class="sep-grid" id="rep-edit-body"></div>
+            <div class="sep-foot">
+                <button class="cc-btn danger" onclick="repEditRemove()"><span class="msym">delete</span>Elimina</button>
+                <span style="flex:1"></span>
+                <button class="cc-btn" onclick="closeRepEditPopup()">Annulla</button>
+                <button class="cc-btn primary" onclick="repEditApply()"><span class="msym">check</span>Applica</button>
+            </div>
+        </div>
+    </div>
+    <div id="rep-ed-dialog" class="cc-scope">
+        <div class="sep-box" style="max-width:420px" onclick="event.stopPropagation()">
+            <div class="sep-head"><div><b id="rep-ed-dlg-title"></b></div></div>
+            <div class="sep-grid"><p class="rep-ed-dlg-text" id="rep-ed-dlg-text"></p></div>
+            <div class="sep-foot rep-ed-dlg-foot" id="rep-ed-dlg-actions"></div>
+        </div>
+    </div>
+
     <div class="container">
         <table id="main-table">
             <thead><tr id="table-head"></tr></thead>
@@ -2099,6 +2243,12 @@
         // Base Excel con i titolari manuali già applicati: è il riferimento per capire chi è il
         // titolare di ogni turno (getRepBarHtml), prima di applicare le cessioni.
         let REPERIBILITA_TITBASE = {};
+        // Modifiche in sospeso della modalità "Modifica reperibilità" (ruota sul calendario):
+        // stessi formati di REP_MANUAL; diventano definitive solo con "Salva".
+        let REP_EDITS = { titolari: {}, fasce: {} };
+        // REP_MANUAL salvato + REP_EDITS: è quello che si vede nel calendario.
+        let REP_EFF_MANUAL = { titolari: {}, fasce: {} };
+        let repEdActive = false;     // modalità modifica reperibilità aperta
         const REP_SLOT_LABELS = ['00-07', '07-13', '13-20', '20-00'];
         const REP_SLOT_LONG = ['00:00 – 07:00', '07:00 – 13:00', '13:00 – 20:00', '20:00 – 00:00'];
 
@@ -2117,7 +2267,7 @@
             const mNum = MONTH_NUM[(mName || '').toString().toUpperCase().trim()];
             if (!mNum) return undefined;
             const iso = repIso(mNum, dNum);
-            if (!REP_MANUAL.titolari || !Object.prototype.hasOwnProperty.call(REP_MANUAL.titolari, iso)) return undefined;
+            if (!REP_EFF_MANUAL.titolari || !Object.prototype.hasOwnProperty.call(REP_EFF_MANUAL.titolari, iso)) return undefined;
             const t = (REPERIBILITA_TITBASE[repKeyFromIso(iso)] || [])[2] || '';
             return t !== '' && normalizeRepName(t) === normalizeRepName(name);
         }
@@ -2126,13 +2276,18 @@
         // Ordine: Excel → titolari manuali → cessioni portale Richieste → fasce manuali admin.
         // Va richiamata ogni volta che REPERIBILITA_BASE, REPERIBILITA_OVERRIDES o REP_MANUAL cambiano.
         function rebuildReperibilitaWithOverrides() {
+            // 0. Manuale salvato + modifiche in sospeso della ruota
+            const MAN = { titolari: Object.assign({}, REP_MANUAL.titolari || {}), fasce: Object.assign({}, REP_MANUAL.fasce || {}) };
+            Object.keys(REP_EDITS.titolari).forEach(k => { MAN.titolari[k] = REP_EDITS.titolari[k]; });
+            Object.keys(REP_EDITS.fasce).forEach(k => { MAN.fasce[k] = REP_EDITS.fasce[k]; });
+            REP_EFF_MANUAL = MAN;
             // 1. Base Excel + titolari manuali
             let titBase = {};
             for (let key in REPERIBILITA_BASE) titBase[key] = REPERIBILITA_BASE[key].slice();
             const ensure = k => titBase[k] || (titBase[k] = ["", "", "", ""]);
-            Object.keys(REP_MANUAL.titolari || {}).sort().forEach(iso => {
+            Object.keys(MAN.titolari).sort().forEach(iso => {
                 if (!repIs2026(iso)) return;
-                const name = (REP_MANUAL.titolari[iso] || '').toString().toUpperCase().trim();
+                const name = (MAN.titolari[iso] || '').toString().toUpperCase().trim();
                 const x = ensure(repKeyFromIso(iso)); x[2] = name; x[3] = name;
                 const n = repIsoAdd(iso, 1);
                 if (repIs2026(n)) { const y = ensure(repKeyFromIso(n)); y[0] = name; y[1] = name; }
@@ -2151,12 +2306,12 @@
                 merged[monthDay][slotIndex] = REPERIBILITA_OVERRIDES[ovKey];
             }
             // 4. Fasce manuali dell'admin (vincono su tutto)
-            Object.keys(REP_MANUAL.fasce || {}).forEach(fk => {
+            Object.keys(MAN.fasce).forEach(fk => {
                 const i = fk.lastIndexOf('_');
                 const iso = fk.substring(0, i), slot = parseInt(fk.substring(i + 1));
                 if (!repIs2026(iso) || isNaN(slot) || slot < 0 || slot > 3) return;
                 const k = repKeyFromIso(iso);
-                let v = (REP_MANUAL.fasce[fk] || '').toString().toUpperCase().trim();
+                let v = (MAN.fasce[fk] || '').toString().toUpperCase().trim();
                 if (v === '') {
                     // "" = coperta dal titolare del turno a cui appartiene la fascia
                     if (slot >= 2) v = (titBase[k] || [])[2] || '';
@@ -3758,6 +3913,12 @@
                     // il secondo giorno.
                     let prevCellInfo = (i > 1 && finalData[i - 1]) ? finalData[i - 1][d.idx] : null;
                     td.innerHTML = formatCell(cellInfo, showDog, showAmbulance, vehicleTasks, repBarHtml, prevCellInfo, mName, dNum, repForceFor(d.name, mName, dNum));
+                    // per la ruota reperibilità: giorno e autista della casella
+                    if (MONTH_NUM[(mName || '').toString().toUpperCase().trim()]) {
+                        td.dataset.repIso = repIso(MONTH_NUM[mName.toString().toUpperCase().trim()], dNum);
+                        td.dataset.repName = d.name;
+                        if (repEdActive && typeof repEdIsMoveFirst === 'function' && repEdIsMoveFirst(td.dataset.repIso, d.name)) td.classList.add('rep-ed-selected');
+                    }
                     
                     if(["M", "P", "N", "R", "MN", "SM"].includes(sType)) {
                         if (cellNotesForRecipient.length > 0) {
@@ -4170,6 +4331,10 @@
         }
 
         function formatCell(info, showDog, showAmbulance, vehicleTasks, repBarHtml, prevInfo, mName, dNum, repForce) {
+            // Titolare impostato a mano (ruota reperibilità): la scritta rossa REPERIBILE compare
+            // anche sulle caselle vuote, di assenza o colorate, non solo sui turni normali.
+            const repBarOnly = repBarHtml;
+            if (repForce === true) repBarHtml = `<div class="rep-badge">REPERIBILE</div>` + (repBarHtml || "");
             let val = info.v ? info.v.toString().trim() : "";
             let color = info.c || "";
             let subColor = info.subC || ""; 
@@ -4278,7 +4443,7 @@
                 <div>${display}</div>
                 ${time ? `<div class="time-tag">${time}</div>` : ""}
                 ${repHtml}
-                ${repBarHtml || ""}
+                ${repBarOnly || ""}
             </div>`;
         }
 
@@ -5760,7 +5925,7 @@ function switchAdminTab(tab) {
         renderAdminGrafica();
     } else if (tab === 'reperibilita') {
         document.getElementById('admin-tab-reperibilita').style.display = 'block';
-        sub.textContent = 'Modifica manuale delle reperibilità';
+        sub.textContent = 'Ruota reperibilità sul calendario';
         if (adminSessionsUnsub) { adminSessionsUnsub(); adminSessionsUnsub = null; }
         renderAdminReperibilita();
     } else if (tab === 'operatori') {
@@ -5779,283 +5944,6 @@ function switchAdminTab(tab) {
         if (adminSessionsUnsub) { adminSessionsUnsub(); adminSessionsUnsub = null; }
         renderAdminBibbia();
     }
-}
-
-// ══════════════════════════════════════════════════════════════
-// AREA ADMIN — TAB "REPERIBILITÀ": modifica manuale di titolare e fasce.
-// Un turno di reperibilità dura 24 ore: dalle 13:00 del giorno scelto alle 13:00 del giorno
-// dopo, diviso in 4 fasce (13-20, 20-00 del giorno stesso; 00-07, 07-13 del giorno dopo).
-// Le modifiche si salvano in admin_config/reperibilita_manuale e valgono subito per tutti,
-// sopra ai dati dell'Excel e alle cessioni arrivate dal portale Richieste.
-// ══════════════════════════════════════════════════════════════
-let adminRepDate = null;     // "YYYY-MM-DD" del turno aperto nell'editor
-let adminRepMonth = null;    // mese (1-12) mostrato nell'elenco
-let adminRepStatus = '';     // messaggio mostrato sotto i pulsanti dopo un salvataggio
-const ADMIN_REP_DIM = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-function adminRepHas(obj, key) { return !!obj && Object.prototype.hasOwnProperty.call(obj, key); }
-function adminRepDefaultDate() {
-    const t = new Date();
-    return t.getFullYear() === 2026 ? repIso(t.getMonth() + 1, t.getDate()) : '2026-01-01';
-}
-function adminRepDateObj(iso) { const p = iso.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
-function adminRepDayLabel(iso, long) {
-    return adminRepDateObj(iso).toLocaleDateString('it-IT', long ? { weekday: 'long', day: 'numeric', month: 'long' } : { weekday: 'short', day: 'numeric', month: 'short' });
-}
-function adminRepIsLive(iso) {
-    const a = adminRepDateObj(iso); a.setHours(13, 0, 0, 0);
-    const b = new Date(a); b.setDate(b.getDate() + 1);
-    const now = new Date();
-    return now >= a && now < b;
-}
-// Le 4 fasce del turno che inizia il giorno X, nell'ordine cronologico
-function adminRepSlots(X) {
-    const N = repIsoAdd(X, 1);
-    const kX = repKeyFromIso(X), kN = repIs2026(N) ? repKeyFromIso(N) : null;
-    return [
-        { iso: X, k: kX, s: 2 }, { iso: X, k: kX, s: 3 },
-        { iso: N, k: kN, s: 0 }, { iso: N, k: kN, s: 1 }
-    ];
-}
-function adminRepDriverNames() {
-    if (typeof drivers !== 'undefined' && drivers && drivers.length) return drivers.map(d => d.name);
-    return STATIC_DRIVER_NAMES.map(n => n.toUpperCase());
-}
-function adminRepOptions(cur, emptyLabel) {
-    const names = adminRepDriverNames().slice();
-    const curN = normalizeRepName(cur);
-    if (cur && !names.some(n => normalizeRepName(n) === curN)) names.push(cur.toString().toUpperCase());
-    return `<option value="">${emptyLabel}</option>` + names.map(n =>
-        `<option value="${escapeHtmlNote(n)}" ${cur && normalizeRepName(n) === curN ? 'selected' : ''}>${escapeHtmlNote(n)}</option>`
-    ).join('');
-}
-function adminRepSlotSource(X, sl) {
-    if (adminRepHas(REP_MANUAL.fasce, sl.iso + '_' + sl.s)) return 'manuale';
-    if (adminRepHas(REPERIBILITA_OVERRIDES, sl.k + '_' + sl.s)) return 'richieste';
-    if (adminRepHas(REP_MANUAL.titolari, X)) return 'manuale';
-    return 'excel';
-}
-function adminRepSrcBadge(src) {
-    const lbl = { excel: 'Excel', richieste: 'Richieste', manuale: 'Manuale' }[src] || src;
-    return `<span class="admin-rep-src ${src}">${lbl}</span>`;
-}
-
-function renderAdminReperibilita() {
-    const panel = document.getElementById('admin-tab-reperibilita');
-    if (!panel) return;
-    if (typeof finalData === 'undefined' || !finalData || !finalData.length) {
-        panel.innerHTML = '<div class="note-empty">Il file turni non è ancora caricato: riprova tra qualche secondo.</div>';
-        return;
-    }
-    if (!adminRepDate) adminRepDate = adminRepDefaultDate();
-    if (adminRepMonth === null) adminRepMonth = parseInt(adminRepDate.split('-')[1]);
-    panel.innerHTML = '<div class="admin-section" id="admin-rep-editor"></div><div class="admin-section" id="admin-rep-month"></div>';
-    renderAdminRepEditor();
-    renderAdminRepMonth();
-}
-
-function renderAdminRepEditor() {
-    const box = document.getElementById('admin-rep-editor');
-    if (!box) return;
-    const X = adminRepDate;
-    const kX = repKeyFromIso(X);
-    const N = repIsoAdd(X, 1);
-    const tit = (REPERIBILITA_TITBASE[kX] || [])[2] || '';
-    const excelTit = (REPERIBILITA_BASE[kX] || [])[2] || '';
-    const titManual = adminRepHas(REP_MANUAL.titolari, X);
-
-    let rows = `<div class="admin-rep-row tit">
-            <label>Titolare<small>reperibile 24 ore</small>${adminRepSrcBadge(titManual ? 'manuale' : 'excel')}</label>
-            <select id="admin-rep-tit" onchange="adminRepTitChanged(this)">${adminRepOptions(tit, '— nessuno —')}</select>
-        </div>`;
-    adminRepSlots(X).forEach((sl, i) => {
-        if (!sl.k) {
-            rows += `<div class="admin-rep-row"><label>${REP_SLOT_LONG[sl.s]}<small>${adminRepDayLabel(sl.iso)}</small></label><div class="admin-rep-out">Fuori dal calendario 2026</div></div>`;
-            return;
-        }
-        const cur = (REPERIBILITA[sl.k] || [])[sl.s] || '';
-        const ceduta = cur && normalizeRepName(cur) !== normalizeRepName(tit) ? cur : '';
-        rows += `<div class="admin-rep-row ${ceduta ? 'ceduta' : ''}">
-                <label>${REP_SLOT_LONG[sl.s]}<small>${adminRepDayLabel(sl.iso)}</small>${adminRepSrcBadge(adminRepSlotSource(X, sl))}</label>
-                <select id="admin-rep-s${i}" onchange="this.parentNode.classList.toggle('ceduta', !!this.value)">${adminRepOptions(ceduta, 'coperta dal titolare')}</select>
-            </div>`;
-    });
-
-    const excelInfo = (titManual && normalizeRepName(excelTit) !== normalizeRepName(tit))
-        ? `<span class="admin-rep-info">Nell'Excel: <b>${escapeHtmlNote(excelTit || 'nessuno')}</b></span>` : '';
-    const live = adminRepIsLive(X) ? '<span class="admin-rep-live"><i></i>In corso ora</span>' : '';
-
-    box.innerHTML = `
-        <div class="admin-section-title"><span class="material-icons-round" style="font-size:16px">phone_in_talk</span> Turno di reperibilità</div>
-        <div class="admin-rep-nav">
-            <div class="admin-op-arrow" onclick="adminRepShift(-1)" title="Giorno prima"><span class="material-icons-round">chevron_left</span></div>
-            <input type="date" min="2026-01-01" max="2026-12-31" value="${X}" onchange="adminRepSelect(this.value)">
-            <div class="admin-op-arrow" onclick="adminRepShift(1)" title="Giorno dopo"><span class="material-icons-round">chevron_right</span></div>
-        </div>
-        <div class="admin-rep-sub">Dalle 13:00 di ${adminRepDayLabel(X, true)} alle 13:00 di ${adminRepDayLabel(N, true)} ${live} ${excelInfo}</div>
-        ${rows}
-        <div class="admin-rep-btns">
-            <button class="primary" onclick="adminRepApply()"><span class="material-icons-round">check</span> Salva per tutti</button>
-            <button class="danger" onclick="adminRepDelete()"><span class="material-icons-round">delete</span> Elimina</button>
-            <button onclick="adminRepRestore()" title="Toglie le modifiche manuali di questo turno"><span class="material-icons-round">restart_alt</span> Ripristina</button>
-        </div>
-        ${adminRepStatus ? `<div class="admin-rep-status">${adminRepStatus}</div>` : ''}
-        <div class="admin-rep-note">Scegli un collega in una fascia per cederla: nel calendario il titolare la vede rossa con il nome, chi la copre la vede lampeggiare. "Ripristina" toglie le modifiche manuali di questo turno e torna a Excel + portale Richieste.</div>`;
-}
-
-function renderAdminRepMonth() {
-    const box = document.getElementById('admin-rep-month');
-    if (!box) return;
-    const m = adminRepMonth;
-    const monthName = Object.keys(MONTH_NUM).find(k => MONTH_NUM[k] === m) || '';
-    const todayIso = adminRepDefaultDate();
-    let manualCount = 0;
-    let list = '';
-    for (let d = 1; d <= ADMIN_REP_DIM[m]; d++) {
-        const iso = repIso(m, d);
-        const k = repKeyFromIso(iso);
-        const tit = (REPERIBILITA_TITBASE[k] || [])[2] || '';
-        const chips = [];
-        let manual = adminRepHas(REP_MANUAL.titolari, iso);
-        adminRepSlots(iso).forEach(sl => {
-            if (!sl.k) return;
-            if (adminRepHas(REP_MANUAL.fasce, sl.iso + '_' + sl.s)) manual = true;
-            const who = (REPERIBILITA[sl.k] || [])[sl.s] || '';
-            if (who && normalizeRepName(who) !== normalizeRepName(tit)) chips.push(`${REP_SLOT_LABELS[sl.s]} → ${escapeHtmlNote(normalizeRepName(who))}`);
-        });
-        if (manual) manualCount++;
-        const dt = adminRepDateObj(iso);
-        const red = dt.getDay() === 0 || dt.getDay() === 6 || !!HOLIDAYS[(m - 1) + '-' + d];
-        const dow = dt.toLocaleDateString('it-IT', { weekday: 'short' }).toUpperCase();
-        list += `<div class="admin-rep-day ${iso === adminRepDate ? 'sel' : ''} ${red ? 'weekend' : ''} ${iso === todayIso ? 'today' : ''}" onclick="adminRepSelect('${iso}')">
-                <div class="admin-rep-dnum">${d}<small>${dow}</small></div>
-                <div style="flex:1;min-width:0">
-                    <div class="admin-rep-dname">${tit ? escapeHtmlNote(normalizeRepName(tit)) : '<span style="color:var(--text-sec);font-weight:600">— nessuno —</span>'}</div>
-                    ${chips.length ? `<div class="admin-rep-chips">${chips.map(c => `<span class="admin-rep-chip">${c}</span>`).join('')}</div>` : ''}
-                </div>
-                ${manual ? '<span class="admin-rep-src manuale">Manuale</span>' : ''}
-            </div>`;
-    }
-    box.innerHTML = `
-        <div class="admin-rep-nav" style="margin-bottom:12px">
-            <div class="admin-op-arrow ${m <= 1 ? 'disabled' : ''}" onclick="adminRepMonthShift(-1)"><span class="material-icons-round">chevron_left</span></div>
-            <div class="admin-rep-month-title">${monthName} 2026<small>${manualCount ? manualCount + (manualCount === 1 ? ' turno modificato a mano' : ' turni modificati a mano') : 'nessuna modifica manuale'}</small></div>
-            <div class="admin-op-arrow ${m >= 12 ? 'disabled' : ''}" onclick="adminRepMonthShift(1)"><span class="material-icons-round">chevron_right</span></div>
-        </div>
-        ${list}`;
-}
-
-function adminRepSelect(iso) {
-    if (!repIs2026(iso)) return;
-    vibrate();
-    adminRepDate = iso;
-    adminRepMonth = parseInt(iso.split('-')[1]);
-    adminRepStatus = '';
-    renderAdminRepEditor();
-    renderAdminRepMonth();
-    const body = document.querySelector('#admin-modal .modal-body');
-    if (body) body.scrollTop = 0;
-}
-function adminRepShift(n) { const d = repIsoAdd(adminRepDate, n); if (repIs2026(d)) adminRepSelect(d); }
-function adminRepMonthShift(n) {
-    const m = adminRepMonth + n;
-    if (m < 1 || m > 12) return;
-    vibrate();
-    adminRepMonth = m;
-    renderAdminRepMonth();
-}
-// Una fascia ceduta proprio al nuovo titolare torna "coperta dal titolare"
-function adminRepTitChanged(sel) {
-    for (let i = 0; i < 4; i++) {
-        const s = document.getElementById('admin-rep-s' + i);
-        if (s && s.value && normalizeRepName(s.value) === normalizeRepName(sel.value)) {
-            s.value = ''; s.parentNode.classList.remove('ceduta');
-        }
-    }
-}
-
-// Scrive solo le chiavi passate (merge): le altre modifiche manuali restano intatte.
-async function adminRepSave(titolari, fasce, okMsg) {
-    const payload = { updatedAt: new Date().toISOString(), updatedBy: turniUserName || 'Admin' };
-    // mai passare mappe vuote: con merge una mappa vuota sostituirebbe tutta la mappa salvata
-    if (Object.keys(titolari).length) payload.titolari = titolari;
-    if (Object.keys(fasce).length) payload.fasce = fasce;
-    try {
-        await db.collection('admin_config').doc('reperibilita_manuale').set(payload, { merge: true });
-        adminRepStatus = '✓ ' + okMsg;
-        renderAdminRepEditor();
-        renderAdminRepMonth();
-    } catch (e) {
-        console.error(e);
-        alert('Salvataggio non riuscito: ' + (e.code || e.message));
-    }
-}
-
-function adminRepApply() {
-    vibrate();
-    const X = adminRepDate;
-    const kX = repKeyFromIso(X);
-    const DEL = firebase.firestore.FieldValue.delete();
-    const excelTit = (REPERIBILITA_BASE[kX] || [])[2] || '';
-    const newTit = document.getElementById('admin-rep-tit').value;
-    const useExcel = normalizeRepName(newTit) === normalizeRepName(excelTit);
-    const titolari = {}, fasce = {};
-    titolari[X] = useExcel ? DEL : newTit;
-    adminRepSlots(X).forEach((sl, i) => {
-        if (!sl.k) return;
-        const el = document.getElementById('admin-rep-s' + i);
-        if (!el) return;
-        const want = el.value || newTit;
-        // cosa ci sarebbe in quella fascia senza una modifica manuale della fascia
-        const excelSlot = (REPERIBILITA_BASE[sl.k] || [])[sl.s] || '';
-        const tbVal = useExcel ? excelSlot : newTit;
-        const pk = sl.k + '_' + sl.s;
-        const wouldBe = adminRepHas(REPERIBILITA_OVERRIDES, pk) ? REPERIBILITA_OVERRIDES[pk] : tbVal;
-        const fk = sl.iso + '_' + sl.s;
-        if (normalizeRepName(want) === normalizeRepName(wouldBe)) fasce[fk] = DEL;
-        else if (normalizeRepName(want) === normalizeRepName(newTit)) fasce[fk] = '';
-        else fasce[fk] = want;
-    });
-    adminRepSave(titolari, fasce, 'Reperibilità del ' + adminRepDayLabel(X) + ' salvata');
-}
-
-function adminRepDelete() {
-    vibrate();
-    const X = adminRepDate;
-    if (!confirm('Eliminare la reperibilità che inizia ' + adminRepDayLabel(X, true) + '?')) return;
-    const DEL = firebase.firestore.FieldValue.delete();
-    const excelTit = (REPERIBILITA_BASE[repKeyFromIso(X)] || [])[2] || '';
-    const titolari = {}, fasce = {};
-    titolari[X] = excelTit ? '' : DEL;
-    adminRepSlots(X).forEach(sl => {
-        if (!sl.k) return;
-        const cur = (REPERIBILITA[sl.k] || [])[sl.s] || '';
-        fasce[sl.iso + '_' + sl.s] = cur ? '' : DEL;
-    });
-    adminRepSave(titolari, fasce, 'Reperibilità eliminata');
-}
-
-function adminRepRestore() {
-    vibrate();
-    const X = adminRepDate;
-    if (!confirm('Togliere le modifiche manuali di questo turno e tornare a Excel + portale Richieste?')) return;
-    const DEL = firebase.firestore.FieldValue.delete();
-    const titolari = {}, fasce = {};
-    titolari[X] = DEL;
-    adminRepSlots(X).forEach(sl => { if (sl.k) fasce[sl.iso + '_' + sl.s] = DEL; });
-    adminRepSave(titolari, fasce, 'Turno riportato a Excel + Richieste');
-}
-
-// Chiamata dai listener Firestore: aggiorna la scheda se è aperta
-function refreshAdminRepIfOpen() {
-    const p = document.getElementById('admin-tab-reperibilita');
-    const m = document.getElementById('admin-modal');
-    if (!p || !m || p.style.display !== 'block' || !m.classList.contains('open')) return;
-    // non ridisegnare mentre l'admin sta scegliendo in un menu a tendina
-    const a = document.activeElement;
-    if (a && a.tagName === 'SELECT' && p.contains(a)) return;
-    renderAdminRepEditor();
-    renderAdminRepMonth();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -7029,5 +6917,572 @@ async function deleteNote(id) {
 
     </script>
    
+    <script>
+    // ═══════════════════════════════════════════════════════════════════════
+    // MODIFICA REPERIBILITÀ SUL CALENDARIO — ruota strumenti (come negli infermieri)
+    // Si apre dall'Area Admin → scheda "Reperibilità". Ogni reperibilità dura 24 h: dalle
+    // 13:00 del giorno X alle 13:00 di X+1, in 4 fasce per giorno fisico:
+    //   [0]=00-07 [1]=07-13 (coda del turno di IERI)   [2]=13-20 [3]=20-00 (turno di OGGI)
+    // Le modifiche restano "in sospeso" (REP_EDITS) e si vedono subito nel calendario, sia nella
+    // striscia delle fasce sia nella scritta rossa REPERIBILE; con "Salva" vanno su Firestore in
+    // admin_config/reperibilita_manuale (titolari / fasce) e diventano visibili a tutti.
+    // ═══════════════════════════════════════════════════════════════════════
+    const WHEEL_REP_TOOLS = [
+        { id:'add',   short:'+ REP',  icon:'add_circle',    label:'Aggiungi reperibilità', hint:'tocca il giorno: reperibile dalle 13:00 per 24 h', fill:'#16a34a' },
+        { id:'move',  short:'SPOSTA', icon:'open_with',     label:'Sposta reperibilità',   hint:'tocca la reperibilità, poi la nuova cella', fill:'#d97706' },
+        { id:'fasce', short:'FASCE',  icon:'tune',          label:'Fasce e cessioni',      hint:'tocca un giorno per assegnare le 4 fasce', fill:'#2563eb' },
+        { id:'del',   short:'− REP',  icon:'remove_circle', label:'Elimina reperibilità',  hint:'tocca la reperibilità da eliminare', fill:'#dc2626' }
+    ];
+    const WHEEL_ACTIONS = [
+        { id:'undo',    icon:'undo',        label:'Annulla', hint:'Ctrl+Z' },
+        { id:'redo',    icon:'redo',        label:'Ripeti',  hint:'Ctrl+Y' },
+        { id:'save',    icon:'save',        label:'Salva',   hint:'rende visibili a tutti' },
+        { id:'discard', icon:'restart_alt', label:'Scarta',  hint:'torna all’ultimo salvataggio' },
+        { id:'exit',    icon:'logout',      label:'Esci',    hint:'chiude la modalità modifica' }
+    ];
+    const WHEEL_SIZES = { P:210, M:250, G:300 };
+    const WHEEL_POS_KEY = 'rep_wheel_pos_v1', WHEEL_SIZE_KEY = 'rep_wheel_size_v1';
+    let twVP = { w: window.innerWidth, h: window.innerHeight };
+    let twExpanded = false, twPos = null, twHover = null;
+    let coordRepTool = null, coordRepMoveFirst = null;
+    let repUndoStack = [], repRedoStack = [];
+    let ccToastTimer = null, repEdDlgResolver = null, repEdSaving = false;
+
+    function esc(s) { return String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
+    function repVib() { try { if (typeof vibrate === 'function') vibrate(); } catch (e) {} }
+    function ccToast(msg, isErr) {
+        const t = document.getElementById('cc-toast'); if (!t) return;
+        t.innerHTML = `<span class="msym">${isErr ? 'error' : 'check_circle'}</span><span>${esc(msg)}</span>`;
+        t.classList.toggle('err', !!isErr); t.classList.add('show');
+        clearTimeout(ccToastTimer); ccToastTimer = setTimeout(() => t.classList.remove('show'), isErr ? 4200 : 2600);
+    }
+    // Finestra di scelta (Continua / Scarta / Salva ...): restituisce il value del pulsante.
+    function repEdDialog(title, text, buttons) {
+        return new Promise(res => {
+            repEdDlgResolver = res;
+            document.getElementById('rep-ed-dlg-title').textContent = title;
+            document.getElementById('rep-ed-dlg-text').textContent = text;
+            const box = document.getElementById('rep-ed-dlg-actions'); box.innerHTML = '';
+            buttons.forEach(b => {
+                const el = document.createElement('button');
+                el.className = 'cc-btn' + (b.kind === 'primary' ? ' primary' : b.kind === 'danger' ? ' danger' : '');
+                el.textContent = b.label;
+                el.onclick = () => repEdDialogResolve(b.value);
+                box.appendChild(el);
+            });
+            const m = document.getElementById('rep-ed-dialog'); m.style.display = 'flex';
+            requestAnimationFrame(() => m.classList.add('open'));
+        });
+    }
+    function repEdDialogResolve(v) {
+        const m = document.getElementById('rep-ed-dialog'); m.classList.remove('open');
+        setTimeout(() => { if (!m.classList.contains('open')) m.style.display = 'none'; }, 150);
+        const r = repEdDlgResolver; repEdDlgResolver = null; if (r) r(v);
+    }
+
+    // ── Lettura dello stato effettivo (Excel + Richieste + manuale + modifiche in sospeso) ──
+    function repHas(o, k) { return !!o && Object.prototype.hasOwnProperty.call(o, k); }
+    function repN(n) { return normalizeRepName(n || ''); }
+    function repDateObj(iso) { const p = iso.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+    function repDateLabel(iso, long) { return iso ? repDateObj(iso).toLocaleDateString('it-IT', long ? { weekday:'long', day:'numeric', month:'long' } : { day:'2-digit', month:'2-digit' }) : ''; }
+    function repTodayIso() { const t = new Date(); return repIso(t.getMonth() + 1, t.getDate()).replace(/^2026/, String(t.getFullYear())); }
+    // Titolare del turno che parte il giorno iso (nome come scritto, '' = nessuno)
+    function repTit(iso) { return repIs2026(iso) ? (((REPERIBILITA_TITBASE[repKeyFromIso(iso)] || [])[2]) || '') : ''; }
+    // Chi copre effettivamente la fascia s del giorno fisico iso
+    function repOcc(iso, s) { return repIs2026(iso) ? (((REPERIBILITA[repKeyFromIso(iso)] || [])[s]) || '') : ''; }
+    function repTitOfSlot(iso, s) { return s >= 2 ? repTit(iso) : repTit(repIsoAdd(iso, -1)); }
+    // Fascia ceduta: nome di chi la copre se diverso dal titolare, altrimenti ''
+    function repCes(iso, s) { const o = repOcc(iso, s); return (o && repN(o) !== repN(repTitOfSlot(iso, s))) ? o : ''; }
+    function repDisplayName(n) {
+        if (!n) return '';
+        const d = (drivers || []).find(x => repN(x.name) === repN(n));
+        return d ? d.name : n.toString().toUpperCase().trim();
+    }
+    function repIsLive(iso) { const now = new Date(), a = repDateObj(iso); a.setHours(13, 0, 0, 0); const b = new Date(a); b.setDate(b.getDate() + 1); return now >= a && now < b; }
+    function repTurnSlotKeys(x) { const n = repIsoAdd(x, 1); return [x + '_2', x + '_3', n + '_0', n + '_1'].filter(k => repIs2026(k.slice(0, 10))); }
+
+    // ── Modifiche in sospeso con Annulla / Ripeti ─────────────────────────
+    // Voce di annullamento: { kind:'rep'|'repc', key, prev, next } con prev/next = null
+    // (nessuna modifica in sospeso) oppure { v: valore }.
+    function repEdMap(kind) { return kind === 'rep' ? REP_EDITS.titolari : REP_EDITS.fasce; }
+    function repSetEdit(kind, key, box) {
+        const map = repEdMap(kind);
+        const prev = repHas(map, key) ? { v: map[key] } : null;
+        if (box) map[key] = box.v; else delete map[key];
+        rebuildReperibilitaWithOverrides();
+        return prev;
+    }
+    // Valore salvato (senza le modifiche in sospeso)
+    function repTitSaved(iso) {
+        if (repHas(REP_MANUAL.titolari, iso)) return (REP_MANUAL.titolari[iso] || '').toString();
+        return ((REPERIBILITA_BASE[repKeyFromIso(iso)] || [])[2]) || '';
+    }
+    function repCesSaved(fk) {
+        const i = fk.lastIndexOf('_'), iso = fk.slice(0, i), s = +fk.slice(i + 1);
+        let v = repHas(REP_MANUAL.fasce, fk) ? (REP_MANUAL.fasce[fk] || '') : (REPERIBILITA_OVERRIDES[repKeyFromIso(iso) + '_' + s] || '');
+        return (v && repN(v) !== repN(repTitOfSlot(iso, s))) ? v : '';
+    }
+    // value: nome ('' = nessun titolare / fascia coperta dal titolare). Restituisce la voce di annullamento.
+    function repChange(kind, key, value) {
+        value = value ? repDisplayName(value) : '';
+        let next = null;
+        if (kind === 'rep') {
+            if (repN(value) !== repN(repTitSaved(key))) next = { v: value };
+        } else {
+            const i = key.lastIndexOf('_'), iso = key.slice(0, i), s = +key.slice(i + 1);
+            if (value && repN(value) === repN(repTitOfSlot(iso, s))) value = '';
+            if (repN(value) !== repN(repCesSaved(key))) next = { v: value };
+        }
+        const prev = repSetEdit(kind, key, next);
+        return { kind, key, prev, next };
+    }
+    function repClearTurnCessioni(x, entries) {
+        repTurnSlotKeys(x).forEach(k => {
+            const i = k.lastIndexOf('_');
+            if (repCes(k.slice(0, i), +k.slice(i + 1)) || repHas(REP_EDITS.fasce, k)) entries.push(repChange('repc', k, ''));
+        });
+    }
+    function repPendingCount() { return Object.keys(REP_EDITS.titolari).length + Object.keys(REP_EDITS.fasce).length; }
+    function repRedraw() {
+        const se = document.scrollingElement || document.documentElement;
+        const cont = document.querySelector('.container');
+        const y = se.scrollTop, cy = cont ? cont.scrollTop : 0, cx = cont ? cont.scrollLeft : 0;
+        if (typeof finalData !== 'undefined' && finalData.length && document.getElementById('table-body').innerHTML !== '') renderTable();
+        se.scrollTop = y; if (cont) { cont.scrollTop = cy; cont.scrollLeft = cx; }
+        if (typeof updateRepNowPill === 'function') updateRepNowPill();
+        updateRepToolbarState();
+    }
+    function repCommitEntries(entries, msg) {
+        entries = entries.filter(en => JSON.stringify(en.prev) !== JSON.stringify(en.next));
+        if (!entries.length) { repRedraw(); return false; }
+        repUndoStack.push({ entries }); repRedoStack = [];
+        repRedraw(); repVib();
+        if (msg) ccToast(msg);
+        return true;
+    }
+    function repApplyUndoEntries(entries, useNext) {
+        (useNext ? entries : entries.slice().reverse()).forEach(en => {
+            const box = useNext ? en.next : en.prev;
+            const map = repEdMap(en.kind);
+            if (box) map[en.key] = box.v; else delete map[en.key];
+        });
+        rebuildReperibilitaWithOverrides();
+        repRedraw();
+    }
+    function repEdUndo() { if (!repUndoStack.length) return; repVib(); const a = repUndoStack.pop(); repRedoStack.push(a); repApplyUndoEntries(a.entries, false); }
+    function repEdRedo() { if (!repRedoStack.length) return; repVib(); const a = repRedoStack.pop(); repUndoStack.push(a); repApplyUndoEntries(a.entries, true); }
+    function repDiscardEdits() {
+        REP_EDITS = { titolari: {}, fasce: {} };
+        repUndoStack = []; repRedoStack = [];
+        coordRepMoveFirst = null;
+        rebuildReperibilitaWithOverrides();
+        repRedraw();
+    }
+    async function repEdDiscard() {
+        const n = repPendingCount(); if (!n) return;
+        const ok = await repEdDialog('Scartare le modifiche?', `${n} ${n === 1 ? 'modifica non salvata andrà persa' : 'modifiche non salvate andranno perse'}: si torna all'ultima versione salvata.`, [
+            { label:'Annulla', value:false }, { label:'Scarta', kind:'danger', value:true }
+        ]);
+        if (ok) { repDiscardEdits(); ccToast('Modifiche scartate'); }
+    }
+
+    // ── Salvataggio su Firestore ──────────────────────────────────────────
+    async function repEdSave(quiet) {
+        const n = repPendingCount(); if (!n || repEdSaving) return !n;
+        const tit = Object.assign({}, REP_EDITS.titolari), fas = Object.assign({}, REP_EDITS.fasce);
+        const payload = { updatedAt: new Date().toISOString(), updatedBy: 'admin (ruota)' };
+        if (Object.keys(tit).length) payload.titolari = tit;      // mai mappe vuote: con merge cancellerebbero tutto
+        if (Object.keys(fas).length) payload.fasce = fas;
+        repEdSaving = true; updateRepToolbarState();
+        try {
+            await db.collection('admin_config').doc('reperibilita_manuale').set(payload, { merge: true });
+            REP_MANUAL = { titolari: Object.assign({}, REP_MANUAL.titolari || {}, tit), fasce: Object.assign({}, REP_MANUAL.fasce || {}, fas) };
+            // restano in sospeso solo le modifiche fatte durante il salvataggio
+            Object.keys(tit).forEach(k => { if (REP_EDITS.titolari[k] === tit[k]) delete REP_EDITS.titolari[k]; });
+            Object.keys(fas).forEach(k => { if (REP_EDITS.fasce[k] === fas[k]) delete REP_EDITS.fasce[k]; });
+            repUndoStack = []; repRedoStack = [];
+            rebuildReperibilitaWithOverrides();
+            repEdSaving = false;
+            repRedraw();
+            if (!quiet) ccToast(`${n} ${n === 1 ? 'modifica salvata' : 'modifiche salvate'}: visibili a tutti`);
+            return true;
+        } catch (e) {
+            console.error('Salvataggio reperibilità:', e);
+            repEdSaving = false; updateRepToolbarState();
+            ccToast('Salvataggio non riuscito: controlla la connessione e riprova.', true);
+            return false;
+        }
+    }
+
+    // ── Entrata / uscita dalla modalità modifica ──────────────────────────
+    function enterRepEdit() {
+        if (typeof finalData === 'undefined' || !finalData.length) { alert('Il calendario non è ancora caricato.'); return; }
+        if (typeof closeAdminModal === 'function') closeAdminModal();
+        setTimeout(() => {
+            toggleRepEditMode(true);
+            const t = document.getElementById('today-row');
+            if (t) t.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            ccToast('Scegli uno strumento sulla ruota e tocca le caselle del calendario');
+        }, 320);
+    }
+    async function exitRepEdit(silent) {
+        const n = repPendingCount();
+        if (n) {
+            const choice = await repEdDialog(`Hai ${n} ${n === 1 ? 'modifica non salvata' : 'modifiche non salvate'}`, 'Salvale per renderle visibili a tutti, oppure scartale per tornare alla versione salvata.', [
+                { label:'Continua a modificare', value:null },
+                { label:'Scarta', kind:'danger', value:'discard' },
+                { label:'Salva ed esci', kind:'primary', value:'save' }
+            ]);
+            if (!choice) return false;
+            if (choice === 'save') { const ok = await repEdSave(true); if (!ok) return false; ccToast('Modifiche salvate'); silent = true; }
+            else repDiscardEdits();
+        }
+        toggleRepEditMode(false);
+        if (!silent) ccToast('Modalità modifica chiusa');
+        return true;
+    }
+    function toggleRepEditMode(active) {
+        repEdActive = active;
+        document.body.classList.toggle('rep-edit-mode', active);
+        document.getElementById('coord-edit-strip').classList.toggle('show', active);
+        document.getElementById('tool-wheel').classList.toggle('show', active);
+        coordRepMoveFirst = null;
+        if (active) {
+            coordRepTool = null;
+            twExpanded = true; twRender(); requestAnimationFrame(twPlace);
+        } else {
+            coordRepTool = null; closeRepEditPopup();
+            repUndoStack = []; repRedoStack = [];
+        }
+        repRedraw();
+    }
+    // chiamata dai listener Firestore (reperibilita_overrides / reperibilita_manuale)
+    function refreshAdminRepIfOpen() { if (repEdActive) updateRepToolbarState(); }
+
+    // ── Strumento attivo, striscia in basso ───────────────────────────────
+    function currentToolInfo() {
+        const r = WHEEL_REP_TOOLS.find(x => x.id === coordRepTool);
+        if (r) return { key:'rep', rep:r, name:r.label, hint: (r.id === 'move' && coordRepMoveFirst) ? 'ora tocca la cella di destinazione' : r.hint };
+        return { key:'none', name:'Nessuno', hint:'scegli uno strumento sulla ruota (toccando una casella si aprono le fasce)' };
+    }
+    function setRepTool(id) {
+        coordRepTool = coordRepTool === id ? null : id;
+        coordRepMoveFirst = null; repClearSelected();
+        repVib();
+        if (coordRepTool) twExpanded = false;
+        twRender(); twPlace(); updateRepToolbarState();
+    }
+    function updateRepToolbarState() {
+        const n = repPendingCount(), t = currentToolInfo();
+        const toolEl = document.getElementById('ces-tool');
+        if (toolEl) toolEl.innerHTML = `Strumento: <b>${esc(t.name)}</b> — ${esc(t.hint)}`;
+        const pEl = document.getElementById('ces-pending');
+        if (pEl) { pEl.textContent = repEdSaving ? 'Salvataggio…' : (n ? `${n} da salvare` : 'Tutto salvato'); pEl.classList.toggle('has', !!n); }
+        const sv = document.getElementById('ces-save'); if (sv) sv.disabled = !n || repEdSaving;
+        const b = document.getElementById('tw-badge'); if (b) { b.textContent = n || ''; b.classList.toggle('has', !!n); }
+        const u = document.getElementById('tw-sat-undo'); if (u) u.disabled = !repUndoStack.length;
+        if (repEdActive) twRender();
+    }
+    function repEdIsMoveFirst(iso, name) { return !!coordRepMoveFirst && coordRepMoveFirst.cellIso === iso && repN(coordRepMoveFirst.orig) === repN(name); }
+    function repClearSelected() { document.querySelectorAll('#table-body td.rep-ed-selected').forEach(t => t.classList.remove('rep-ed-selected')); }
+
+    // ── Ruota ─────────────────────────────────────────────────────────────
+    function twPrefSize() { let k = 'G'; try { k = localStorage.getItem(WHEEL_SIZE_KEY) || 'G'; } catch (e) {} return WHEEL_SIZES[k] ? k : 'G'; }
+    function twSize() { const fit = Math.min(twVP.w - 24, twVP.h - 150); return Math.round(Math.max(170, Math.min(WHEEL_SIZES[twPrefSize()], fit))); }
+    function twSetSize(k) { try { localStorage.setItem(WHEEL_SIZE_KEY, k); } catch (e) {} repVib(); twRender(); twPlace(); }
+    function wheelRingItems() { return WHEEL_REP_TOOLS.map(r => ({ kind:'rep', id:r.id, short:r.short, label:r.label, time:r.hint, fill:r.fill, fg:'#fff', icon:r.icon })); }
+    function annularSector(cx, cy, r0, r1, a0, a1) {
+        const p = (r, a) => { const t = (a - 90) * Math.PI / 180; return [(cx + r * Math.cos(t)).toFixed(2), (cy + r * Math.sin(t)).toFixed(2)]; };
+        const large = (a1 - a0) > 180 ? 1 : 0;
+        const [x1, y1] = p(r1, a0), [x2, y2] = p(r1, a1), [x3, y3] = p(r0, a1), [x4, y4] = p(r0, a0);
+        return `M${x1} ${y1}A${r1} ${r1} 0 ${large} 1 ${x2} ${y2}L${x3} ${y3}A${r0} ${r0} 0 ${large} 0 ${x4} ${y4}Z`;
+    }
+    function polar(cx, cy, r, a) { const t = (a - 90) * Math.PI / 180; return [cx + r * Math.cos(t), cy + r * Math.sin(t)]; }
+    // anello interno = azioni (annulla, ripeti, salva, scarta, esci); anello esterno = strumenti reperibilità
+    function buildWheelMarkup(size) {
+        const S = size, c = S / 2, k = S / 300;
+        const rIn0 = 42 * k, rIn1 = 88 * k, rOut0 = 93 * k, rOut1 = 147 * k;
+        const items = wheelRingItems(), n = repPendingCount();
+        let paths = `<circle class="tw-back" cx="${c}" cy="${c}" r="${rOut1 + 1.5 * k}"/>`, labels = '';
+        const nA = WHEEL_ACTIONS.length, stepA = 360 / nA;
+        WHEEL_ACTIONS.forEach((a, i) => {
+            const a0 = i * stepA - stepA / 2 + 0.8, a1 = (i + 1) * stepA - stepA / 2 - 0.8;
+            let st = '';
+            if ((a.id === 'undo' && !repUndoStack.length) || (a.id === 'redo' && !repRedoStack.length) || ((a.id === 'save' || a.id === 'discard') && !n)) st = 'off';
+            paths += `<path class="tw-seg act ${st}" data-kind="act" data-id="${a.id}" d="${annularSector(c, c, rIn0, rIn1, a0, a1)}"><title>${esc(a.label)}</title></path>`;
+            const [x, y] = polar(c, c, (rIn0 + rIn1) / 2, i * stepA);
+            labels += `<span class="tw-lbl ico ${st}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px"><span class="msym" style="font-size:${Math.round(20 * k)}px">${a.icon}</span></span>`;
+        });
+        const pad = 0.9, step = 360 / items.length;
+        let ang = -step / 2;
+        items.forEach((it, idx) => {
+            const a0 = ang + pad / 2, a1 = ang + step - pad / 2;
+            const sel = coordRepTool === it.id;
+            paths += `<path class="tw-seg ${sel ? 'sel' : ''}" data-kind="rep" data-i="${idx}" data-id="${esc(it.id)}" d="${annularSector(c, c, rOut0, rOut1, a0, a1)}" style="fill:${it.fill}"><title>${esc(it.label)}</title></path>`;
+            const [x, y] = polar(c, c, (rOut0 + rOut1) / 2, (a0 + a1) / 2);
+            const fs = Math.max(9, Math.round(11 * k));
+            labels += `<span class="tw-lbl" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;color:${it.fg};font-size:${fs}px"><span class="msym" style="display:block;font-size:${Math.round(22 * k)}px;margin:0 auto 2px">${it.icon}</span>${esc(it.short)}</span>`;
+            ang += step;
+        });
+        return `<svg viewBox="0 0 ${S} ${S}" width="${S}" height="${S}">${paths}</svg><div class="tw-labels">${labels}</div>`;
+    }
+    function twRender() {
+        const ring = document.getElementById('tw-ring'); if (!ring) return;
+        const wheel = document.getElementById('tool-wheel');
+        wheel.classList.toggle('collapsed', !twExpanded);
+        const S = twSize();
+        wheel.style.width = wheel.style.height = S + 'px';
+        wheel.style.setProperty('--tw-hub', Math.max(54, Math.round(72 * S / 300)) + 'px');
+        const pref = twPrefSize();
+        document.querySelectorAll('#tw-bar .tw-bar-sizes button').forEach(b => b.classList.toggle('on', b.dataset.size === pref));
+        if (twExpanded) {
+            ring.innerHTML = buildWheelMarkup(S);
+            ring.querySelectorAll('path.tw-seg').forEach(p => {
+                p.addEventListener('click', twOnSegmentClick);
+                p.addEventListener('pointerenter', () => { twHover = p; twCaption(); });
+                p.addEventListener('pointerleave', () => { if (twHover === p) twHover = null; twCaption(); });
+            });
+        }
+        const t = currentToolInfo(), sw = document.getElementById('tw-hub-sw');
+        if (t.key === 'rep') { sw.className = 'tw-hub-sw'; sw.setAttribute('style', `background:${t.rep.fill};color:#fff;width:auto;min-width:30px;padding:0 4px`); sw.textContent = t.rep.short; }
+        else { sw.className = 'tw-hub-sw plain'; sw.removeAttribute('style'); sw.innerHTML = '<span class="msym" style="color:#dc2626">phone_in_talk</span>'; }
+        twCaption();
+    }
+    function twCaption() {
+        const cap = document.getElementById('tw-caption'); if (!cap) return;
+        if (twHover) {
+            if (twHover.dataset.kind === 'act') { const a = WHEEL_ACTIONS.find(x => x.id === twHover.dataset.id); cap.innerHTML = `${esc(a.label)}<small>${esc(a.hint)}</small>`; return; }
+            const it = wheelRingItems()[+twHover.dataset.i]; if (!it) return; cap.innerHTML = `${esc(it.label)}<small>${esc(it.time)}</small>`; return;
+        }
+        const t = currentToolInfo();
+        cap.innerHTML = `${esc(t.name)}<small>${esc(t.hint)}</small>`;
+    }
+    function twOnSegmentClick(e) {
+        const p = e.currentTarget;
+        if (p.dataset.kind === 'rep') { twHover = null; setRepTool(p.dataset.id); return; }
+        const id = p.dataset.id;
+        if (id === 'undo') repEdUndo();
+        else if (id === 'redo') repEdRedo();
+        else if (id === 'save') { if (repPendingCount()) repEdSave(); }
+        else if (id === 'discard') repEdDiscard();
+        else if (id === 'exit') exitRepEdit();
+    }
+    function twDefaultPos() { return { x: twVP.w - 60, y: twVP.h - 120 }; }
+    function twLoadPos() {
+        if (twPos) return twPos;
+        try { const p = JSON.parse(localStorage.getItem(WHEEL_POS_KEY)); if (p && isFinite(p.x) && isFinite(p.y)) twPos = p; } catch (e) {}
+        if (!twPos) twPos = twDefaultPos();
+        return twPos;
+    }
+    function twClamp(p, expanded) {
+        const W = twVP.w, H = twVP.h, half = twSize() / 2;
+        const r = expanded ? half : 34, top = expanded ? half + 46 : 40, bottom = expanded ? half + 66 : 100;
+        const x = W < r * 2 + 16 ? W / 2 : Math.min(Math.max(p.x, r + 8), W - r - 8);
+        const y = H < top + bottom ? H / 2 : Math.min(Math.max(p.y, top + (expanded ? 0 : 20)), H - bottom);
+        return { x, y };
+    }
+    function twPlace() {
+        const wheel = document.getElementById('tool-wheel'); if (!wheel) return;
+        const p = twClamp(twLoadPos(), twExpanded), half = twSize() / 2;
+        wheel.style.transform = `translate(${Math.round(p.x - half)}px, ${Math.round(p.y - half)}px)`;
+        wheel.classList.toggle('caption-top', p.y > twVP.h - (half + 80));
+        const bar = document.getElementById('tw-bar');
+        if (bar && twExpanded) {
+            const bw = bar.offsetWidth, W = twVP.w;
+            const left = Math.min(Math.max(p.x - bw / 2, 8), Math.max(8, W - 8 - bw));
+            bar.style.transform = `translateX(calc(-50% + ${Math.round(left - (p.x - bw / 2))}px))`;
+        }
+    }
+    (function setupToolWheelDrag() {
+        const hub = document.getElementById('tw-hub'); if (!hub) return;
+        let start = null;
+        hub.addEventListener('pointerdown', e => {
+            e.preventDefault();
+            const p = twClamp(twLoadPos(), twExpanded);
+            start = { x: e.clientX, y: e.clientY, px: p.x, py: p.y, moved: false, id: e.pointerId };
+            try { hub.setPointerCapture(e.pointerId); } catch (err) {}
+        });
+        hub.addEventListener('pointermove', e => {
+            if (!start || e.pointerId !== start.id) return;
+            const dx = e.clientX - start.x, dy = e.clientY - start.y;
+            if (!start.moved && Math.hypot(dx, dy) < 6) return;
+            start.moved = true;
+            twPos = { x: start.px + dx, y: start.py + dy };
+            twPlace();
+        });
+        hub.addEventListener('pointerup', e => {
+            if (!start || e.pointerId !== start.id) return;
+            const s = start; start = null;
+            if (s.moved) { twPos = twClamp(twPos, twExpanded); try { localStorage.setItem(WHEEL_POS_KEY, JSON.stringify(twPos)); } catch (err) {} twPlace(); }
+            else { twExpanded = !twExpanded; twHover = null; twRender(); twPlace(); repVib(); }
+        });
+        hub.addEventListener('pointercancel', () => { start = null; });
+        hub.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); twExpanded = !twExpanded; twRender(); twPlace(); } });
+    })();
+    window.addEventListener('resize', () => { twVP = { w: window.innerWidth, h: window.innerHeight }; if (repEdActive) { twRender(); twPlace(); } });
+    document.addEventListener('keydown', e => {
+        if (!repEdActive) return;
+        if (e.key === 'Escape') {
+            if (document.getElementById('rep-ed-dialog').classList.contains('open')) { e.preventDefault(); repEdDialogResolve(null); return; }
+            if (document.getElementById('rep-edit-popup').classList.contains('open')) { e.preventDefault(); closeRepEditPopup(); return; }
+            return;
+        }
+        const tag = (document.activeElement && document.activeElement.tagName) || '';
+        if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z') { e.preventDefault(); repEdUndo(); }
+        else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); repEdRedo(); }
+    });
+    window.addEventListener('beforeunload', e => { if (repEdActive && repPendingCount()) { e.preventDefault(); e.returnValue = ''; } });
+
+    // ── Tocco sulle caselle del calendario in modalità modifica ──────────
+    // Ascoltatore in fase di "cattura": in modifica il tocco non apre il dettaglio del turno.
+    document.addEventListener('click', e => {
+        if (!repEdActive) return;
+        const td = e.target.closest && e.target.closest('#table-body td[data-rep-iso]');
+        if (!td) return;
+        e.preventDefault(); e.stopPropagation();
+        repToolTap(td.dataset.repIso, td.dataset.repName, td);
+    }, true);
+
+    // Una cella (giorno X, autista) può appartenere alla reperibilità iniziata il giorno X
+    // oppure a quella iniziata il giorno prima, che dura fino alle 13:00 di X.
+    function repOwnTurn(iso, name) {
+        if (repTit(iso) && repN(repTit(iso)) === repN(name)) return iso;
+        const prev = repIsoAdd(iso, -1);
+        return (repTit(prev) && repN(repTit(prev)) === repN(name)) ? prev : null;
+    }
+    function repTurnForCell(iso, name) {
+        const prev = repIsoAdd(iso, -1);
+        const own = repOwnTurn(iso, name); if (own) return own;
+        if (repN(repOcc(iso, 0)) === repN(name) || repN(repOcc(iso, 1)) === repN(name)) return repIs2026(prev) ? prev : iso;
+        if (repN(repOcc(iso, 2)) === repN(name) || repN(repOcc(iso, 3)) === repN(name)) return iso;
+        const now = new Date();
+        if (iso === repTodayIso() && now.getHours() < 13 && repTit(prev)) return prev;
+        return iso;
+    }
+    function repToolTap(iso, name, td) {
+        if (!repIs2026(iso)) return;
+        const tit = repTit(iso), lbl = repDateLabel(iso, true);
+        const entries = [];
+        if (!coordRepTool || coordRepTool === 'fasce') {
+            const x = repTurnForCell(iso, name);
+            openRepEditPopup(x, x === iso ? name : null);
+        } else if (coordRepTool === 'add') {
+            if (tit && repN(tit) === repN(name)) { ccToast(`${name} è già reperibile ${lbl}.`); return; }
+            if (tit) repClearTurnCessioni(iso, entries);
+            entries.push(repChange('rep', iso, name));
+            repCommitEntries(entries, tit ? `Reperibilità di ${lbl}: ${repDisplayName(tit)} → ${name}` : `${name} reperibile ${lbl} dalle 13:00 per 24 ore`);
+        } else if (coordRepTool === 'del') {
+            const own = repOwnTurn(iso, name);
+            if (own) { repClearTurnCessioni(own, entries); entries.push(repChange('rep', own, '')); }
+            else [0, 1, 2, 3].forEach(s => { if (repCes(iso, s) && repN(repCes(iso, s)) === repN(name)) entries.push(repChange('repc', iso + '_' + s, '')); });
+            if (!repCommitEntries(entries, `Reperibilità eliminata (${name}, ${repDateLabel(iso)})`)) ccToast(`Qui ${name} non ha reperibilità da eliminare.`, true);
+        } else if (coordRepTool === 'move') {
+            if (!coordRepMoveFirst) {
+                const own = repOwnTurn(iso, name);
+                if (!own) { ccToast('Tocca prima una casella di chi è reperibile (verde).', true); return; }
+                coordRepMoveFirst = { date: own, orig: name, cellIso: iso };
+                repClearSelected(); if (td) td.classList.add('rep-ed-selected');
+                repVib(); updateRepToolbarState();
+                return;
+            }
+            const a = coordRepMoveFirst; coordRepMoveFirst = null; repClearSelected();
+            if (a.date === iso && repN(a.orig) === repN(name)) { updateRepToolbarState(); return; }
+            const destTit = repTit(iso);
+            const swap = a.date !== iso && destTit && repN(destTit) !== repN(a.orig);
+            repClearTurnCessioni(a.date, entries);
+            if (a.date !== iso) {
+                if (destTit) repClearTurnCessioni(iso, entries);
+                // se il giorno di destinazione aveva già un reperibile, i due si scambiano
+                entries.push(repChange('rep', a.date, swap ? destTit : ''));
+            }
+            entries.push(repChange('rep', iso, name));
+            repCommitEntries(entries, `Reperibilità spostata: ${repDisplayName(a.orig)} ${repDateLabel(a.date)} → ${name} ${repDateLabel(iso)}${swap ? ` (scambiata con ${repDisplayName(destTit)})` : ''}`);
+        }
+    }
+
+    // ── Editor delle 4 fasce ──────────────────────────────────────────────
+    let repEditCtx = null;
+    function repDriverOptions(sel, emptyLabel) {
+        const names = (drivers || []).map(d => d.name);
+        if (sel && !names.some(n => repN(n) === repN(sel))) names.push(sel.toString().toUpperCase().trim());
+        return `<option value="">${esc(emptyLabel)}</option>` + names.map(n => `<option value="${esc(n)}" ${sel && repN(n) === repN(sel) ? 'selected' : ''}>${esc(n)}</option>`).join('');
+    }
+    function openRepEditPopup(iso, nameHint) {
+        if (!repIs2026(iso)) return;
+        const n = repIsoAdd(iso, 1);
+        const tit = repTit(iso);
+        repEditCtx = { date: iso };
+        const slots = [[iso, 2], [iso, 3], [n, 0], [n, 1]];
+        const live = repIsLive(iso);
+        const canPrev = repIs2026(repIsoAdd(iso, -1)), canNext = repIs2026(n);
+        let html = `<div class="rep-ed-nav"><button class="cc-btn sm" ${canPrev ? '' : 'disabled'} onclick="repEditShift(-1)"><span class="msym">chevron_left</span>Giorno prima</button>${live ? '<span class="rep-ed-live"><i></i>In corso ora</span>' : '<span></span>'}<button class="cc-btn sm" ${canNext ? '' : 'disabled'} onclick="repEditShift(1)">Giorno dopo<span class="msym">chevron_right</span></button></div>`;
+        html += `<div class="rep-ed-row tit"><label>Titolare<small>reperibile 24 h</small></label><select class="cc-input" id="rep-ed-tit" onchange="repEditTitChanged(this)">${repDriverOptions(tit || nameHint || '', '— nessuno —')}</select></div>`;
+        slots.forEach(([d, s], i) => {
+            if (!repIs2026(d)) { html += `<div class="rep-ed-row"><label>${REP_SLOT_LONG[s]}<small>${repDateLabel(d, true)}</small></label><select class="cc-input" id="rep-ed-s${i}" disabled><option value="">fuori dal calendario 2026</option></select></div>`; return; }
+            const cur = repCes(d, s);
+            html += `<div class="rep-ed-row ${cur ? 'rep-ed-slot-ceduta' : ''}"><label>${REP_SLOT_LONG[s]}<small>${repDateLabel(d, true)}</small></label><select class="cc-input" id="rep-ed-s${i}" onchange="this.parentNode.classList.toggle('rep-ed-slot-ceduta', !!this.value)">${repDriverOptions(cur, 'coperta dal titolare')}</select></div>`;
+        });
+        html += `<p class="rep-ed-note">Scegli un collega in una fascia per cederla: nel calendario il titolare la vede rossa con il nome, chi la copre la vede lampeggiare. Le cessioni inviate dal portale Richieste compaiono già qui. Le modifiche vanno salvate con Salva.</p>`;
+        document.getElementById('rep-edit-title').textContent = 'Reperibilità ' + repDateLabel(iso, true);
+        document.getElementById('rep-edit-sub').textContent = `dalle 13:00 di ${repDateLabel(iso, true)} alle 13:00 di ${repDateLabel(n, true)}`;
+        document.getElementById('rep-edit-body').innerHTML = html;
+        const m = document.getElementById('rep-edit-popup'); m.style.display = 'flex';
+        requestAnimationFrame(() => m.classList.add('open'));
+    }
+    function repEditShift(d) { if (repEditCtx) { const x = repIsoAdd(repEditCtx.date, d); if (repIs2026(x)) openRepEditPopup(x); } }
+    function repEditTitChanged(sel) {
+        // una fascia ceduta proprio al nuovo titolare torna "coperta dal titolare"
+        for (let i = 0; i < 4; i++) { const s = document.getElementById('rep-ed-s' + i); if (s && !s.disabled && s.value && repN(s.value) === repN(sel.value)) { s.value = ''; s.parentNode.classList.remove('rep-ed-slot-ceduta'); } }
+    }
+    function closeRepEditPopup(e) {
+        if (e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('rep-edit-popup'); if (!m) return;
+        m.classList.remove('open');
+        setTimeout(() => { if (!m.classList.contains('open')) m.style.display = 'none'; }, 150);
+        repEditCtx = null;
+    }
+    function repEditApply() {
+        if (!repEditCtx) return;
+        const iso = repEditCtx.date, n = repIsoAdd(iso, 1);
+        const tit = document.getElementById('rep-ed-tit').value;
+        const vals = [0, 1, 2, 3].map(i => { const el = document.getElementById('rep-ed-s' + i); return el && !el.disabled ? el.value : null; });
+        const entries = [repChange('rep', iso, tit)];
+        [[iso, 2], [iso, 3], [n, 0], [n, 1]].forEach(([d, s], i) => {
+            if (vals[i] === null || !repIs2026(d)) return;
+            const k = d + '_' + s, v = vals[i];
+            const want = (v && repN(v) !== repN(tit)) ? v : '';
+            if (repN(want) !== repN(repCes(d, s)) || repHas(REP_EDITS.fasce, k)) entries.push(repChange('repc', k, want));
+        });
+        closeRepEditPopup();
+        if (!repCommitEntries(entries, 'Reperibilità aggiornata')) ccToast('Nessuna modifica.');
+    }
+    function repEditRemove() {
+        if (!repEditCtx) return;
+        const iso = repEditCtx.date, entries = [];
+        repClearTurnCessioni(iso, entries);
+        entries.push(repChange('rep', iso, ''));
+        closeRepEditPopup();
+        if (!repCommitEntries(entries, 'Reperibilità eliminata')) ccToast('Questo giorno non ha reperibilità.');
+    }
+
+    // ── Area Admin → scheda "Reperibilità": ingresso alla modalità ruota ──
+    function renderAdminReperibilita() {
+        const panel = document.getElementById('admin-tab-reperibilita'); if (!panel) return;
+        const n = repPendingCount();
+        panel.innerHTML = `<div class="admin-rep-open">
+            <h4><span class="material-icons-round">phone_in_talk</span> Modifica reperibilità sul calendario</h4>
+            <p>Si apre la ruota degli strumenti sopra al calendario: scegli lo strumento e tocca le caselle degli autisti. La striscia delle fasce e la scritta rossa REPERIBILE si aggiornano subito; con <b>Salva</b> le modifiche diventano visibili a tutti.</p>
+            <ul>
+                <li><b>+ REP</b> — reperibile dalle 13:00 del giorno toccato per 24 ore</li>
+                <li><b>SPOSTA</b> — tocca la reperibilità, poi la nuova casella (se c'è già qualcuno si scambiano)</li>
+                <li><b>FASCE</b> — titolare e chi copre 13-20, 20-00, 00-07, 07-13</li>
+                <li><b>− REP</b> — elimina la reperibilità</li>
+            </ul>
+            ${n ? `<p style="color:#c2410c">Ci sono ${n} modifiche non ancora salvate.</p>` : ''}
+            <button class="admin-rep-open-btn" onclick="enterRepEdit()"><span class="material-icons-round">edit_calendar</span> Apri la ruota reperibilità</button>
+        </div>`;
+    }
+    </script>
 </body>
 </html>
