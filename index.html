@@ -699,6 +699,58 @@
         }
         .admin-save-btn.reset { background: var(--bg); color: var(--text-sec); border: 1px solid var(--border); margin-top: 8px; }
 
+        /* AREA ADMIN — scheda Reperibilità (modifica manuale di titolare e fasce) */
+        .admin-rep-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .admin-rep-nav input[type="date"] {
+            flex: 1; min-width: 0; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg); color: var(--text-main); font-weight: 800; font-size: 0.9rem; font-family: inherit; text-align: center;
+        }
+        .admin-rep-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-sec); margin-bottom: 8px; line-height: 1.35; }
+        .admin-rep-live { display: inline-flex; align-items: center; gap: 5px; background: var(--coral-soft); color: var(--coral); font-weight: 800; font-size: 0.68rem; padding: 3px 9px; border-radius: 999px; }
+        .admin-rep-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); animation: rep-now-pulse 1.8s ease-in-out infinite; }
+        .admin-rep-info { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 2px 8px; font-size: 0.68rem; }
+        .admin-rep-row { display: grid; grid-template-columns: 118px 1fr; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .admin-rep-row.tit { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px; margin-bottom: 4px; }
+        .admin-rep-row label { font-size: 0.8rem; font-weight: 800; color: var(--text-main); line-height: 1.2; }
+        .admin-rep-row label small { display: block; font-size: 0.66rem; font-weight: 600; color: var(--text-sec); margin-top: 1px; text-transform: capitalize; }
+        .admin-rep-row select {
+            width: 100%; min-width: 0; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg-card); color: var(--text-main); font-weight: 700; font-size: 0.85rem; font-family: inherit;
+        }
+        .admin-rep-row.ceduta select { border-color: #dc2626; box-shadow: inset 3px 0 0 #dc2626; color: #b91c1c; }
+        .admin-rep-out { font-size: 0.75rem; color: var(--text-sec); font-weight: 600; }
+        .admin-rep-src { display: inline-block; font-size: 0.56rem; font-weight: 800; padding: 1px 6px; border-radius: 5px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.3px; flex-shrink: 0; }
+        .admin-rep-src.excel { background: #e2e8f0; color: #475569; }
+        .admin-rep-src.richieste { background: #dbeafe; color: #1e40af; }
+        .admin-rep-src.manuale { background: #ede9fe; color: #6d28d9; }
+        .admin-rep-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+        .admin-rep-btns button {
+            flex: 1; min-width: 110px; padding: 12px 10px; border-radius: 12px; border: 1px solid var(--border);
+            background: var(--bg); color: var(--text-main); font-weight: 800; font-size: 0.8rem; font-family: inherit;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .admin-rep-btns button .material-icons-round { font-size: 18px; }
+        .admin-rep-btns button.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .admin-rep-btns button.danger { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+        .admin-rep-btns button:active { transform: scale(0.97); }
+        .admin-rep-status { margin-top: 10px; padding: 9px 12px; border-radius: 10px; background: #dcfce7; color: #15803d; font-size: 0.8rem; font-weight: 800; }
+        .admin-rep-note { margin-top: 10px; font-size: 0.72rem; line-height: 1.4; color: var(--text-sec); }
+        .admin-rep-month-title { flex: 1; text-align: center; font-weight: 900; font-size: 1rem; color: var(--text-main); text-transform: capitalize; }
+        .admin-rep-month-title small { display: block; font-size: 0.66rem; font-weight: 600; color: var(--text-sec); text-transform: none; margin-top: 2px; }
+        .admin-rep-day {
+            display: flex; align-items: center; gap: 10px; padding: 8px 10px; margin-bottom: 6px;
+            border-radius: 10px; border: 1px solid var(--border); background: var(--bg); cursor: pointer;
+        }
+        .admin-rep-day:active { transform: scale(0.99); }
+        .admin-rep-day.sel { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+        .admin-rep-day.today .admin-rep-dnum { color: var(--primary); }
+        .admin-rep-dnum { width: 40px; flex-shrink: 0; text-align: center; font-weight: 900; font-size: 1rem; line-height: 1; color: var(--navy-mid); }
+        .admin-rep-dnum small { display: block; font-size: 0.55rem; font-weight: 700; color: var(--text-sec); margin-top: 2px; }
+        .admin-rep-day.weekend .admin-rep-dnum, .admin-rep-day.weekend .admin-rep-dnum small { color: var(--coral); }
+        body.dark-mode .admin-rep-dnum { color: #93b4ff; }
+        .admin-rep-dname { font-weight: 800; font-size: 0.85rem; color: var(--text-main); }
+        .admin-rep-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+        .admin-rep-chip { font-size: 0.62rem; font-weight: 800; background: #fee2e2; color: #991b1b; border-radius: 5px; padding: 1px 6px; }
         /* MODALITÀ SCHERZO — overlay "modalità bambino" applicato lato client SOLO
            all'operatore selezionato dall'admin, finché non viene disattivato. */
         body.prank-mode {
@@ -1794,6 +1846,9 @@
                 <button class="admin-tab" data-tab="grafica" onclick="switchAdminTab('grafica')">
                     <span class="material-icons-round">palette</span> Grafica
                 </button>
+                <button class="admin-tab" data-tab="reperibilita" onclick="switchAdminTab('reperibilita')">
+                    <span class="material-icons-round">phone_in_talk</span> Reperibilità
+                </button>
                 <button class="admin-tab" data-tab="operatori" onclick="switchAdminTab('operatori')">
                     <span class="material-icons-round">swap_horiz</span> Operatori
                 </button>
@@ -1809,6 +1864,7 @@
                     <div id="admin-sessions-list"></div>
                 </div>
                 <div id="admin-tab-grafica" class="admin-tab-panel" style="display:none; padding:16px;"></div>
+                <div id="admin-tab-reperibilita" class="admin-tab-panel" style="display:none; padding:16px;"></div>
                 <div id="admin-tab-operatori" class="admin-tab-panel" style="display:none; padding:16px;"></div>
                 <div id="admin-tab-scherzo" class="admin-tab-panel" style="display:none; padding:16px;"></div>
                 <div id="admin-tab-bibbia" class="admin-tab-panel" style="display:none; padding:16px;"></div>
@@ -2032,13 +2088,60 @@
         // dati Excel. Chiave "mese_giorno_sloteIndex" -> nome nuovo operatore. Popolato dal
         // listener Firestore sulla collection "reperibilita_overrides" (vedi sezione Firebase).
         let REPERIBILITA_OVERRIDES = {};
+        // Modifiche MANUALI dell'Area Admin (scheda "Reperibilità"), salvate in
+        // admin_config/reperibilita_manuale:
+        //   titolari: { "YYYY-MM-DD": NOME }  → titolare del turno 13:00 di quel giorno › 13:00 del
+        //             giorno dopo ("" = reperibilità eliminata). Sostituisce quello dell'Excel.
+        //   fasce:    { "YYYY-MM-DD_slot": NOME } → chi copre quella fascia del giorno fisico
+        //             ("" = torna al titolare, annullando anche una cessione del portale Richieste).
+        // Hanno la precedenza su Excel e su portale Richieste.
+        let REP_MANUAL = { titolari: {}, fasce: {} };
+        // Base Excel con i titolari manuali già applicati: è il riferimento per capire chi è il
+        // titolare di ogni turno (getRepBarHtml), prima di applicare le cessioni.
+        let REPERIBILITA_TITBASE = {};
+        const REP_SLOT_LABELS = ['00-07', '07-13', '13-20', '20-00'];
+        const REP_SLOT_LONG = ['00:00 – 07:00', '07:00 – 13:00', '13:00 – 20:00', '20:00 – 00:00'];
+
+        function repIso(mNum, d) { return '2026-' + String(mNum).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
+        function repKeyFromIso(iso) { const p = iso.split('-'); return parseInt(p[1]) + '_' + parseInt(p[2]); }
+        function repIsoAdd(iso, n) {
+            const p = iso.split('-').map(Number); const d = new Date(p[0], p[1] - 1, p[2] + n);
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+        function repIs2026(iso) { return typeof iso === 'string' && iso.indexOf('2026-') === 0; }
+
+        // Se per quel giorno l'admin ha cambiato a mano il titolare, la scritta "REPERIBILE"
+        // nella cella segue il titolare manuale invece del codice "/r" dell'Excel.
+        // Ritorna true/false se c'è un titolare manuale, undefined altrimenti.
+        function repForceFor(name, mName, dNum) {
+            const mNum = MONTH_NUM[(mName || '').toString().toUpperCase().trim()];
+            if (!mNum) return undefined;
+            const iso = repIso(mNum, dNum);
+            if (!REP_MANUAL.titolari || !Object.prototype.hasOwnProperty.call(REP_MANUAL.titolari, iso)) return undefined;
+            const t = (REPERIBILITA_TITBASE[repKeyFromIso(iso)] || [])[2] || '';
+            return t !== '' && normalizeRepName(t) === normalizeRepName(name);
+        }
 
         // Riapplica gli override di cessione reperibilità sopra i dati grezzi dell'Excel.
-        // Va richiamata ogni volta che REPERIBILITA_BASE o REPERIBILITA_OVERRIDES cambiano.
+        // Ordine: Excel → titolari manuali → cessioni portale Richieste → fasce manuali admin.
+        // Va richiamata ogni volta che REPERIBILITA_BASE, REPERIBILITA_OVERRIDES o REP_MANUAL cambiano.
         function rebuildReperibilitaWithOverrides() {
+            // 1. Base Excel + titolari manuali
+            let titBase = {};
+            for (let key in REPERIBILITA_BASE) titBase[key] = REPERIBILITA_BASE[key].slice();
+            const ensure = k => titBase[k] || (titBase[k] = ["", "", "", ""]);
+            Object.keys(REP_MANUAL.titolari || {}).sort().forEach(iso => {
+                if (!repIs2026(iso)) return;
+                const name = (REP_MANUAL.titolari[iso] || '').toString().toUpperCase().trim();
+                const x = ensure(repKeyFromIso(iso)); x[2] = name; x[3] = name;
+                const n = repIsoAdd(iso, 1);
+                if (repIs2026(n)) { const y = ensure(repKeyFromIso(n)); y[0] = name; y[1] = name; }
+            });
+            REPERIBILITA_TITBASE = titBase;
+
             let merged = {};
-            for (let key in REPERIBILITA_BASE) {
-                merged[key] = REPERIBILITA_BASE[key].slice(); // copia array, non mutare la base
+            for (let key in titBase) {
+                merged[key] = titBase[key].slice(); // copia array, non mutare la base
             }
             for (let ovKey in REPERIBILITA_OVERRIDES) {
                 let lastUnderscore = ovKey.lastIndexOf("_");
@@ -2047,6 +2150,21 @@
                 if (!merged[monthDay]) merged[monthDay] = ["", "", "", ""];
                 merged[monthDay][slotIndex] = REPERIBILITA_OVERRIDES[ovKey];
             }
+            // 4. Fasce manuali dell'admin (vincono su tutto)
+            Object.keys(REP_MANUAL.fasce || {}).forEach(fk => {
+                const i = fk.lastIndexOf('_');
+                const iso = fk.substring(0, i), slot = parseInt(fk.substring(i + 1));
+                if (!repIs2026(iso) || isNaN(slot) || slot < 0 || slot > 3) return;
+                const k = repKeyFromIso(iso);
+                let v = (REP_MANUAL.fasce[fk] || '').toString().toUpperCase().trim();
+                if (v === '') {
+                    // "" = coperta dal titolare del turno a cui appartiene la fascia
+                    if (slot >= 2) v = (titBase[k] || [])[2] || '';
+                    else { const p = repIsoAdd(iso, -1); v = repIs2026(p) ? ((titBase[repKeyFromIso(p)] || [])[2] || '') : ''; }
+                }
+                if (!merged[k]) merged[k] = ["", "", "", ""];
+                merged[k][slot] = v;
+            });
             REPERIBILITA = merged;
         }
         // Righe del foglio Excel (1-based, come in eachRow) dove si trovano le 4 fasce di reperibilità.
@@ -2146,8 +2264,8 @@
             // fasce del turno (20-00 di oggi, 00-07/07-13 di domani) e NON deve spostarsi
             // nemmeno se la 13-20 stessa viene ceduta — altrimenti l'intera reperibilità
             // del titolare originale sparirebbe dalla vista di tutti.
-            let fascieXBase     = REPERIBILITA_BASE[mNum + "_" + day] || null;
-            let fascieXprevBase = prevInfo ? (REPERIBILITA_BASE[prevInfo.mNum + "_" + prevInfo.day] || null) : null;
+            let fascieXBase     = REPERIBILITA_TITBASE[mNum + "_" + day] || null;
+            let fascieXprevBase = prevInfo ? (REPERIBILITA_TITBASE[prevInfo.mNum + "_" + prevInfo.day] || null) : null;
             let titolareOggi = (fascieXBase && fascieXBase[2]) ? normalizeRepName(fascieXBase[2]) : "";
             let titolareIeri = (fascieXprevBase && fascieXprevBase[2]) ? normalizeRepName(fascieXprevBase[2]) : "";
 
@@ -3639,7 +3757,7 @@
                     // nel file): serve conoscere la cella del giorno precedente per colorare anche
                     // il secondo giorno.
                     let prevCellInfo = (i > 1 && finalData[i - 1]) ? finalData[i - 1][d.idx] : null;
-                    td.innerHTML = formatCell(cellInfo, showDog, showAmbulance, vehicleTasks, repBarHtml, prevCellInfo, mName, dNum);
+                    td.innerHTML = formatCell(cellInfo, showDog, showAmbulance, vehicleTasks, repBarHtml, prevCellInfo, mName, dNum, repForceFor(d.name, mName, dNum));
                     
                     if(["M", "P", "N", "R", "MN", "SM"].includes(sType)) {
                         if (cellNotesForRecipient.length > 0) {
@@ -3834,7 +3952,7 @@
                 // Salviamo anche il valore originale (rawVal) per poter identificare i minuscoli
                 driversInShift.push({ 
                     name: d.name, 
-                    isRep: val.toLowerCase().includes("/r"),
+                    isRep: (function() { const f = repForceFor(d.name, month, day); return f !== undefined ? f : val.toLowerCase().includes("/r"); })(),
                     rawVal: val 
                 });
             });
@@ -4051,7 +4169,7 @@
             return null; 
         }
 
-        function formatCell(info, showDog, showAmbulance, vehicleTasks, repBarHtml, prevInfo, mName, dNum) {
+        function formatCell(info, showDog, showAmbulance, vehicleTasks, repBarHtml, prevInfo, mName, dNum, repForce) {
             let val = info.v ? info.v.toString().trim() : "";
             let color = info.c || "";
             let subColor = info.subC || ""; 
@@ -4141,7 +4259,8 @@
             }
 
             let isRep = false;
-            if (rawVal.toLowerCase().includes("/r")) isRep = true; 
+            if (repForce !== undefined) isRep = repForce;
+            else if (rawVal.toLowerCase().includes("/r")) isRep = true; 
             let repHtml = isRep ? `<div class="rep-badge">REPERIBILE</div>` : "";
 
             let hasVehicleTask = vehicleTasks && vehicleTasks.length > 0;
@@ -4749,7 +4868,23 @@ db.collection('reperibilita_overrides').onSnapshot((snapshot) => {
     if (typeof finalData !== 'undefined' && finalData && finalData.length && document.getElementById('table-body').innerHTML !== "") {
         renderTable();
     }
+    if (typeof refreshAdminRepIfOpen === 'function') refreshAdminRepIfOpen();
 });
+
+// ─── REPERIBILITÀ MANUALE (Area Admin → Reperibilità) → applicata in automatico a tutti ───
+db.collection('admin_config').doc('reperibilita_manuale').onSnapshot((docSnap) => {
+    const d = docSnap.exists ? (docSnap.data() || {}) : {};
+    REP_MANUAL = {
+        titolari: (d.titolari && typeof d.titolari === 'object') ? d.titolari : {},
+        fasce: (d.fasce && typeof d.fasce === 'object') ? d.fasce : {}
+    };
+    rebuildReperibilitaWithOverrides();
+    if (typeof finalData !== 'undefined' && finalData && finalData.length && document.getElementById('table-body').innerHTML !== "") {
+        renderTable();
+    }
+    if (typeof updateRepNowPill === 'function') updateRepNowPill();
+    if (typeof refreshAdminRepIfOpen === 'function') refreshAdminRepIfOpen();
+}, (err) => console.warn('Reperibilità manuale non disponibile:', err));
 
 // ─── GRAFICA PERSONALIZZATA (Area Admin → Grafica) → applicata in automatico a tutti ───
 db.collection('admin_config').doc('grafica').onSnapshot((docSnap) => {
@@ -5623,6 +5758,11 @@ function switchAdminTab(tab) {
         sub.textContent = 'Colori e grafica dell\'app';
         if (adminSessionsUnsub) { adminSessionsUnsub(); adminSessionsUnsub = null; }
         renderAdminGrafica();
+    } else if (tab === 'reperibilita') {
+        document.getElementById('admin-tab-reperibilita').style.display = 'block';
+        sub.textContent = 'Modifica manuale delle reperibilità';
+        if (adminSessionsUnsub) { adminSessionsUnsub(); adminSessionsUnsub = null; }
+        renderAdminReperibilita();
     } else if (tab === 'operatori') {
         document.getElementById('admin-tab-operatori').style.display = 'block';
         sub.textContent = 'Ordine colonne autisti';
@@ -5639,6 +5779,283 @@ function switchAdminTab(tab) {
         if (adminSessionsUnsub) { adminSessionsUnsub(); adminSessionsUnsub = null; }
         renderAdminBibbia();
     }
+}
+
+// ══════════════════════════════════════════════════════════════
+// AREA ADMIN — TAB "REPERIBILITÀ": modifica manuale di titolare e fasce.
+// Un turno di reperibilità dura 24 ore: dalle 13:00 del giorno scelto alle 13:00 del giorno
+// dopo, diviso in 4 fasce (13-20, 20-00 del giorno stesso; 00-07, 07-13 del giorno dopo).
+// Le modifiche si salvano in admin_config/reperibilita_manuale e valgono subito per tutti,
+// sopra ai dati dell'Excel e alle cessioni arrivate dal portale Richieste.
+// ══════════════════════════════════════════════════════════════
+let adminRepDate = null;     // "YYYY-MM-DD" del turno aperto nell'editor
+let adminRepMonth = null;    // mese (1-12) mostrato nell'elenco
+let adminRepStatus = '';     // messaggio mostrato sotto i pulsanti dopo un salvataggio
+const ADMIN_REP_DIM = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+function adminRepHas(obj, key) { return !!obj && Object.prototype.hasOwnProperty.call(obj, key); }
+function adminRepDefaultDate() {
+    const t = new Date();
+    return t.getFullYear() === 2026 ? repIso(t.getMonth() + 1, t.getDate()) : '2026-01-01';
+}
+function adminRepDateObj(iso) { const p = iso.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+function adminRepDayLabel(iso, long) {
+    return adminRepDateObj(iso).toLocaleDateString('it-IT', long ? { weekday: 'long', day: 'numeric', month: 'long' } : { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function adminRepIsLive(iso) {
+    const a = adminRepDateObj(iso); a.setHours(13, 0, 0, 0);
+    const b = new Date(a); b.setDate(b.getDate() + 1);
+    const now = new Date();
+    return now >= a && now < b;
+}
+// Le 4 fasce del turno che inizia il giorno X, nell'ordine cronologico
+function adminRepSlots(X) {
+    const N = repIsoAdd(X, 1);
+    const kX = repKeyFromIso(X), kN = repIs2026(N) ? repKeyFromIso(N) : null;
+    return [
+        { iso: X, k: kX, s: 2 }, { iso: X, k: kX, s: 3 },
+        { iso: N, k: kN, s: 0 }, { iso: N, k: kN, s: 1 }
+    ];
+}
+function adminRepDriverNames() {
+    if (typeof drivers !== 'undefined' && drivers && drivers.length) return drivers.map(d => d.name);
+    return STATIC_DRIVER_NAMES.map(n => n.toUpperCase());
+}
+function adminRepOptions(cur, emptyLabel) {
+    const names = adminRepDriverNames().slice();
+    const curN = normalizeRepName(cur);
+    if (cur && !names.some(n => normalizeRepName(n) === curN)) names.push(cur.toString().toUpperCase());
+    return `<option value="">${emptyLabel}</option>` + names.map(n =>
+        `<option value="${escapeHtmlNote(n)}" ${cur && normalizeRepName(n) === curN ? 'selected' : ''}>${escapeHtmlNote(n)}</option>`
+    ).join('');
+}
+function adminRepSlotSource(X, sl) {
+    if (adminRepHas(REP_MANUAL.fasce, sl.iso + '_' + sl.s)) return 'manuale';
+    if (adminRepHas(REPERIBILITA_OVERRIDES, sl.k + '_' + sl.s)) return 'richieste';
+    if (adminRepHas(REP_MANUAL.titolari, X)) return 'manuale';
+    return 'excel';
+}
+function adminRepSrcBadge(src) {
+    const lbl = { excel: 'Excel', richieste: 'Richieste', manuale: 'Manuale' }[src] || src;
+    return `<span class="admin-rep-src ${src}">${lbl}</span>`;
+}
+
+function renderAdminReperibilita() {
+    const panel = document.getElementById('admin-tab-reperibilita');
+    if (!panel) return;
+    if (typeof finalData === 'undefined' || !finalData || !finalData.length) {
+        panel.innerHTML = '<div class="note-empty">Il file turni non è ancora caricato: riprova tra qualche secondo.</div>';
+        return;
+    }
+    if (!adminRepDate) adminRepDate = adminRepDefaultDate();
+    if (adminRepMonth === null) adminRepMonth = parseInt(adminRepDate.split('-')[1]);
+    panel.innerHTML = '<div class="admin-section" id="admin-rep-editor"></div><div class="admin-section" id="admin-rep-month"></div>';
+    renderAdminRepEditor();
+    renderAdminRepMonth();
+}
+
+function renderAdminRepEditor() {
+    const box = document.getElementById('admin-rep-editor');
+    if (!box) return;
+    const X = adminRepDate;
+    const kX = repKeyFromIso(X);
+    const N = repIsoAdd(X, 1);
+    const tit = (REPERIBILITA_TITBASE[kX] || [])[2] || '';
+    const excelTit = (REPERIBILITA_BASE[kX] || [])[2] || '';
+    const titManual = adminRepHas(REP_MANUAL.titolari, X);
+
+    let rows = `<div class="admin-rep-row tit">
+            <label>Titolare<small>reperibile 24 ore</small>${adminRepSrcBadge(titManual ? 'manuale' : 'excel')}</label>
+            <select id="admin-rep-tit" onchange="adminRepTitChanged(this)">${adminRepOptions(tit, '— nessuno —')}</select>
+        </div>`;
+    adminRepSlots(X).forEach((sl, i) => {
+        if (!sl.k) {
+            rows += `<div class="admin-rep-row"><label>${REP_SLOT_LONG[sl.s]}<small>${adminRepDayLabel(sl.iso)}</small></label><div class="admin-rep-out">Fuori dal calendario 2026</div></div>`;
+            return;
+        }
+        const cur = (REPERIBILITA[sl.k] || [])[sl.s] || '';
+        const ceduta = cur && normalizeRepName(cur) !== normalizeRepName(tit) ? cur : '';
+        rows += `<div class="admin-rep-row ${ceduta ? 'ceduta' : ''}">
+                <label>${REP_SLOT_LONG[sl.s]}<small>${adminRepDayLabel(sl.iso)}</small>${adminRepSrcBadge(adminRepSlotSource(X, sl))}</label>
+                <select id="admin-rep-s${i}" onchange="this.parentNode.classList.toggle('ceduta', !!this.value)">${adminRepOptions(ceduta, 'coperta dal titolare')}</select>
+            </div>`;
+    });
+
+    const excelInfo = (titManual && normalizeRepName(excelTit) !== normalizeRepName(tit))
+        ? `<span class="admin-rep-info">Nell'Excel: <b>${escapeHtmlNote(excelTit || 'nessuno')}</b></span>` : '';
+    const live = adminRepIsLive(X) ? '<span class="admin-rep-live"><i></i>In corso ora</span>' : '';
+
+    box.innerHTML = `
+        <div class="admin-section-title"><span class="material-icons-round" style="font-size:16px">phone_in_talk</span> Turno di reperibilità</div>
+        <div class="admin-rep-nav">
+            <div class="admin-op-arrow" onclick="adminRepShift(-1)" title="Giorno prima"><span class="material-icons-round">chevron_left</span></div>
+            <input type="date" min="2026-01-01" max="2026-12-31" value="${X}" onchange="adminRepSelect(this.value)">
+            <div class="admin-op-arrow" onclick="adminRepShift(1)" title="Giorno dopo"><span class="material-icons-round">chevron_right</span></div>
+        </div>
+        <div class="admin-rep-sub">Dalle 13:00 di ${adminRepDayLabel(X, true)} alle 13:00 di ${adminRepDayLabel(N, true)} ${live} ${excelInfo}</div>
+        ${rows}
+        <div class="admin-rep-btns">
+            <button class="primary" onclick="adminRepApply()"><span class="material-icons-round">check</span> Salva per tutti</button>
+            <button class="danger" onclick="adminRepDelete()"><span class="material-icons-round">delete</span> Elimina</button>
+            <button onclick="adminRepRestore()" title="Toglie le modifiche manuali di questo turno"><span class="material-icons-round">restart_alt</span> Ripristina</button>
+        </div>
+        ${adminRepStatus ? `<div class="admin-rep-status">${adminRepStatus}</div>` : ''}
+        <div class="admin-rep-note">Scegli un collega in una fascia per cederla: nel calendario il titolare la vede rossa con il nome, chi la copre la vede lampeggiare. "Ripristina" toglie le modifiche manuali di questo turno e torna a Excel + portale Richieste.</div>`;
+}
+
+function renderAdminRepMonth() {
+    const box = document.getElementById('admin-rep-month');
+    if (!box) return;
+    const m = adminRepMonth;
+    const monthName = Object.keys(MONTH_NUM).find(k => MONTH_NUM[k] === m) || '';
+    const todayIso = adminRepDefaultDate();
+    let manualCount = 0;
+    let list = '';
+    for (let d = 1; d <= ADMIN_REP_DIM[m]; d++) {
+        const iso = repIso(m, d);
+        const k = repKeyFromIso(iso);
+        const tit = (REPERIBILITA_TITBASE[k] || [])[2] || '';
+        const chips = [];
+        let manual = adminRepHas(REP_MANUAL.titolari, iso);
+        adminRepSlots(iso).forEach(sl => {
+            if (!sl.k) return;
+            if (adminRepHas(REP_MANUAL.fasce, sl.iso + '_' + sl.s)) manual = true;
+            const who = (REPERIBILITA[sl.k] || [])[sl.s] || '';
+            if (who && normalizeRepName(who) !== normalizeRepName(tit)) chips.push(`${REP_SLOT_LABELS[sl.s]} → ${escapeHtmlNote(normalizeRepName(who))}`);
+        });
+        if (manual) manualCount++;
+        const dt = adminRepDateObj(iso);
+        const red = dt.getDay() === 0 || dt.getDay() === 6 || !!HOLIDAYS[(m - 1) + '-' + d];
+        const dow = dt.toLocaleDateString('it-IT', { weekday: 'short' }).toUpperCase();
+        list += `<div class="admin-rep-day ${iso === adminRepDate ? 'sel' : ''} ${red ? 'weekend' : ''} ${iso === todayIso ? 'today' : ''}" onclick="adminRepSelect('${iso}')">
+                <div class="admin-rep-dnum">${d}<small>${dow}</small></div>
+                <div style="flex:1;min-width:0">
+                    <div class="admin-rep-dname">${tit ? escapeHtmlNote(normalizeRepName(tit)) : '<span style="color:var(--text-sec);font-weight:600">— nessuno —</span>'}</div>
+                    ${chips.length ? `<div class="admin-rep-chips">${chips.map(c => `<span class="admin-rep-chip">${c}</span>`).join('')}</div>` : ''}
+                </div>
+                ${manual ? '<span class="admin-rep-src manuale">Manuale</span>' : ''}
+            </div>`;
+    }
+    box.innerHTML = `
+        <div class="admin-rep-nav" style="margin-bottom:12px">
+            <div class="admin-op-arrow ${m <= 1 ? 'disabled' : ''}" onclick="adminRepMonthShift(-1)"><span class="material-icons-round">chevron_left</span></div>
+            <div class="admin-rep-month-title">${monthName} 2026<small>${manualCount ? manualCount + (manualCount === 1 ? ' turno modificato a mano' : ' turni modificati a mano') : 'nessuna modifica manuale'}</small></div>
+            <div class="admin-op-arrow ${m >= 12 ? 'disabled' : ''}" onclick="adminRepMonthShift(1)"><span class="material-icons-round">chevron_right</span></div>
+        </div>
+        ${list}`;
+}
+
+function adminRepSelect(iso) {
+    if (!repIs2026(iso)) return;
+    vibrate();
+    adminRepDate = iso;
+    adminRepMonth = parseInt(iso.split('-')[1]);
+    adminRepStatus = '';
+    renderAdminRepEditor();
+    renderAdminRepMonth();
+    const body = document.querySelector('#admin-modal .modal-body');
+    if (body) body.scrollTop = 0;
+}
+function adminRepShift(n) { const d = repIsoAdd(adminRepDate, n); if (repIs2026(d)) adminRepSelect(d); }
+function adminRepMonthShift(n) {
+    const m = adminRepMonth + n;
+    if (m < 1 || m > 12) return;
+    vibrate();
+    adminRepMonth = m;
+    renderAdminRepMonth();
+}
+// Una fascia ceduta proprio al nuovo titolare torna "coperta dal titolare"
+function adminRepTitChanged(sel) {
+    for (let i = 0; i < 4; i++) {
+        const s = document.getElementById('admin-rep-s' + i);
+        if (s && s.value && normalizeRepName(s.value) === normalizeRepName(sel.value)) {
+            s.value = ''; s.parentNode.classList.remove('ceduta');
+        }
+    }
+}
+
+// Scrive solo le chiavi passate (merge): le altre modifiche manuali restano intatte.
+async function adminRepSave(titolari, fasce, okMsg) {
+    const payload = { updatedAt: new Date().toISOString(), updatedBy: turniUserName || 'Admin' };
+    // mai passare mappe vuote: con merge una mappa vuota sostituirebbe tutta la mappa salvata
+    if (Object.keys(titolari).length) payload.titolari = titolari;
+    if (Object.keys(fasce).length) payload.fasce = fasce;
+    try {
+        await db.collection('admin_config').doc('reperibilita_manuale').set(payload, { merge: true });
+        adminRepStatus = '✓ ' + okMsg;
+        renderAdminRepEditor();
+        renderAdminRepMonth();
+    } catch (e) {
+        console.error(e);
+        alert('Salvataggio non riuscito: ' + (e.code || e.message));
+    }
+}
+
+function adminRepApply() {
+    vibrate();
+    const X = adminRepDate;
+    const kX = repKeyFromIso(X);
+    const DEL = firebase.firestore.FieldValue.delete();
+    const excelTit = (REPERIBILITA_BASE[kX] || [])[2] || '';
+    const newTit = document.getElementById('admin-rep-tit').value;
+    const useExcel = normalizeRepName(newTit) === normalizeRepName(excelTit);
+    const titolari = {}, fasce = {};
+    titolari[X] = useExcel ? DEL : newTit;
+    adminRepSlots(X).forEach((sl, i) => {
+        if (!sl.k) return;
+        const el = document.getElementById('admin-rep-s' + i);
+        if (!el) return;
+        const want = el.value || newTit;
+        // cosa ci sarebbe in quella fascia senza una modifica manuale della fascia
+        const excelSlot = (REPERIBILITA_BASE[sl.k] || [])[sl.s] || '';
+        const tbVal = useExcel ? excelSlot : newTit;
+        const pk = sl.k + '_' + sl.s;
+        const wouldBe = adminRepHas(REPERIBILITA_OVERRIDES, pk) ? REPERIBILITA_OVERRIDES[pk] : tbVal;
+        const fk = sl.iso + '_' + sl.s;
+        if (normalizeRepName(want) === normalizeRepName(wouldBe)) fasce[fk] = DEL;
+        else if (normalizeRepName(want) === normalizeRepName(newTit)) fasce[fk] = '';
+        else fasce[fk] = want;
+    });
+    adminRepSave(titolari, fasce, 'Reperibilità del ' + adminRepDayLabel(X) + ' salvata');
+}
+
+function adminRepDelete() {
+    vibrate();
+    const X = adminRepDate;
+    if (!confirm('Eliminare la reperibilità che inizia ' + adminRepDayLabel(X, true) + '?')) return;
+    const DEL = firebase.firestore.FieldValue.delete();
+    const excelTit = (REPERIBILITA_BASE[repKeyFromIso(X)] || [])[2] || '';
+    const titolari = {}, fasce = {};
+    titolari[X] = excelTit ? '' : DEL;
+    adminRepSlots(X).forEach(sl => {
+        if (!sl.k) return;
+        const cur = (REPERIBILITA[sl.k] || [])[sl.s] || '';
+        fasce[sl.iso + '_' + sl.s] = cur ? '' : DEL;
+    });
+    adminRepSave(titolari, fasce, 'Reperibilità eliminata');
+}
+
+function adminRepRestore() {
+    vibrate();
+    const X = adminRepDate;
+    if (!confirm('Togliere le modifiche manuali di questo turno e tornare a Excel + portale Richieste?')) return;
+    const DEL = firebase.firestore.FieldValue.delete();
+    const titolari = {}, fasce = {};
+    titolari[X] = DEL;
+    adminRepSlots(X).forEach(sl => { if (sl.k) fasce[sl.iso + '_' + sl.s] = DEL; });
+    adminRepSave(titolari, fasce, 'Turno riportato a Excel + Richieste');
+}
+
+// Chiamata dai listener Firestore: aggiorna la scheda se è aperta
+function refreshAdminRepIfOpen() {
+    const p = document.getElementById('admin-tab-reperibilita');
+    const m = document.getElementById('admin-modal');
+    if (!p || !m || p.style.display !== 'block' || !m.classList.contains('open')) return;
+    // non ridisegnare mentre l'admin sta scegliendo in un menu a tendina
+    const a = document.activeElement;
+    if (a && a.tagName === 'SELECT' && p.contains(a)) return;
+    renderAdminRepEditor();
+    renderAdminRepMonth();
 }
 
 // ══════════════════════════════════════════════════════════════
