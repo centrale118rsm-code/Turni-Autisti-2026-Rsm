@@ -2260,16 +2260,18 @@
         }
         function repIs2026(iso) { return typeof iso === 'string' && iso.indexOf('2026-') === 0; }
 
-        // Se per quel giorno l'admin ha cambiato a mano il titolare, la scritta "REPERIBILE"
-        // nella cella segue il titolare manuale invece del codice "/r" dell'Excel.
-        // Ritorna true/false se c'è un titolare manuale, undefined altrimenti.
+        // Scritta rossa "REPERIBILE": di norma segue il codice "/r" dell'Excel. Se però quel giorno
+        // la reperibilità è stata cambiata (titolare manuale, fascia 13-20 ceduta dalla ruota o dal
+        // portale Richieste), segue chi inizia davvero la reperibilità: chi copre la 13-20.
+        // Ritorna true/false se il giorno è stato cambiato, undefined altrimenti.
         function repForceFor(name, mName, dNum) {
             const mNum = MONTH_NUM[(mName || '').toString().toUpperCase().trim()];
             if (!mNum) return undefined;
-            const iso = repIso(mNum, dNum);
-            if (!REP_EFF_MANUAL.titolari || !Object.prototype.hasOwnProperty.call(REP_EFF_MANUAL.titolari, iso)) return undefined;
-            const t = (REPERIBILITA_TITBASE[repKeyFromIso(iso)] || [])[2] || '';
-            return t !== '' && normalizeRepName(t) === normalizeRepName(name);
+            const iso = repIso(mNum, dNum), k = repKeyFromIso(iso);
+            const has = (o, key) => !!o && Object.prototype.hasOwnProperty.call(o, key);
+            if (!has(REP_EFF_MANUAL.titolari, iso) && !has(REP_EFF_MANUAL.fasce, iso + '_2') && !has(REPERIBILITA_OVERRIDES, k + '_2')) return undefined;
+            const who = (REPERIBILITA[k] || [])[2] || '';
+            return who !== '' && normalizeRepName(who) === normalizeRepName(name);
         }
 
         // Riapplica gli override di cessione reperibilità sopra i dati grezzi dell'Excel.
