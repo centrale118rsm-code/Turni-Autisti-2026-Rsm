@@ -2269,7 +2269,9 @@
             if (!mNum) return undefined;
             const iso = repIso(mNum, dNum), k = repKeyFromIso(iso);
             const has = (o, key) => !!o && Object.prototype.hasOwnProperty.call(o, key);
-            if (!has(REP_EFF_MANUAL.titolari, iso) && !has(REP_EFF_MANUAL.fasce, iso + '_2') && !has(REPERIBILITA_OVERRIDES, k + '_2')) return undefined;
+            // Se le righe reperibilità dell'Excel (29-32) hanno un nome per la 13-20 di quel giorno, la scritta
+            // REPERIBILE segue quelle (come le fasce verdi), anche se la "/R" nella casella turni è su un altro autista.
+            if (!has(REP_EFF_MANUAL.titolari, iso) && !has(REP_EFF_MANUAL.fasce, iso + '_2') && !has(REPERIBILITA_OVERRIDES, k + '_2') && !((REPERIBILITA_BASE[k] || [])[2])) return undefined;
             const who = (REPERIBILITA[k] || [])[2] || '';
             return who !== '' && normalizeRepName(who) === normalizeRepName(name);
         }
