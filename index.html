@@ -2260,17 +2260,19 @@
         }
         function repIs2026(iso) { return typeof iso === 'string' && iso.indexOf('2026-') === 0; }
 
-        // Scritta rossa "REPERIBILE": di norma segue il codice "/r" dell'Excel. Se però quel giorno
-        // la reperibilità è stata cambiata (titolare manuale, fascia 13-20 ceduta dalla ruota o dal
-        // portale Richieste), segue chi inizia davvero la reperibilità: chi copre la 13-20.
-        // Ritorna true/false se il giorno è stato cambiato, undefined altrimenti.
+        // Scritta rossa "REPERIBILE": va al TITOLARE della reperibilità di quel giorno (dalle 13:00 per
+        // 24 ore), cioè quello delle righe reperibilità dell'Excel (29-32) o quello scelto con la ruota.
+        // Chi riceve solo una fascia ceduta (anche la 13-20) non diventa titolare: vede la fascia
+        // nella striscia, ma la scritta resta al titolare. Il codice "/r" dell'Excel vale solo nei
+        // giorni senza righe reperibilità e senza titolare manuale.
+        // Ritorna true/false se il titolare è noto, undefined altrimenti.
         function repForceFor(name, mName, dNum) {
             const mNum = MONTH_NUM[(mName || '').toString().toUpperCase().trim()];
             if (!mNum) return undefined;
             const iso = repIso(mNum, dNum), k = repKeyFromIso(iso);
             const has = (o, key) => !!o && Object.prototype.hasOwnProperty.call(o, key);
-            if (!has(REP_EFF_MANUAL.titolari, iso) && !has(REP_EFF_MANUAL.fasce, iso + '_2') && !has(REPERIBILITA_OVERRIDES, k + '_2')) return undefined;
-            const who = (REPERIBILITA[k] || [])[2] || '';
+            const who = (REPERIBILITA_TITBASE[k] || [])[2] || '';
+            if (!has(REP_EFF_MANUAL.titolari, iso) && !who) return undefined;
             return who !== '' && normalizeRepName(who) === normalizeRepName(name);
         }
 
