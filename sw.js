@@ -1,11 +1,14 @@
 // HO CAMBIATO LA VERSIONE A V2 PER FORZARE L'AGGIORNAMENTO
-const CACHE_NAME = 'turni-autisti-cache-v2';
+const CACHE_NAME = 'turni-autisti-cache-v3';
 
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
   './logo.png',
+  './icon-autisti3-192.png',
+  './icon-autisti3-512.png',
+  './apple-touch-icon-autisti3.png',
   'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap',
   'https://fonts.googleapis.com/icon?family=Material+Icons+Round'
