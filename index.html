@@ -578,6 +578,9 @@
         .spec-pl { background: #0f766e !important; color: #ffffff !important; border: 1px solid #115e59 !important; font-size: 0.65rem; }
         .cell .perm-h { text-transform: none; }
         .perm-tag { text-transform: none; font-size: 0.52rem; font-weight: 900; letter-spacing: .2px; line-height: 1.2; padding: 1px 5px; border-radius: 4px; margin: 1px 0 2px; color: #fff; background: #0f766e; white-space: nowrap; z-index: 2; }
+        /* Reperibile in permesso notte: scritta rossa lampeggiante nella casella del giorno del permesso */
+        .rep-pn-warn { margin:3px auto 0; padding:2px 3px; border-radius:5px; background:#dc2626; color:#fff; font-size:0.5rem; font-weight:900; line-height:1.15; letter-spacing:.2px; text-align:center; animation:repPnBlink 1.4s ease-in-out infinite; }
+        @keyframes repPnBlink { 50% { background:#7f1d1d; } }
         /* Permesso notte: verde scuro, distinto dal permesso straordinario (verde chiaro) */
         .spec-darkgreen { background: #14532d !important; color: #ffffff !important; border: 1px solid #166534 !important; font-size: 0.65rem; }
         body.dark-mode .spec-darkgreen { background: #052e16 !important; color: #bbf7d0 !important; border-color: #14532d !important; }
@@ -834,7 +837,7 @@
         .rep-ed-live i { width:7px; height:7px; border-radius:50%; background:#dc2626; animation:rep-now-pulse 1.8s ease-in-out infinite; }
         .rep-ed-note { font-size:12px; color:var(--cc-muted); margin-top:10px; line-height:1.4; }
         .rep-ed-slot-ceduta select { border-color:#dc2626; box-shadow:inset 3px 0 0 #dc2626; }
-        .rep-ed-dlg-text { margin:0; font-size:13.5px; color:var(--cc-muted); line-height:1.45; }
+        .rep-ed-dlg-text { margin:0; font-size:13.5px; color:var(--cc-muted); line-height:1.45; white-space:pre-line; }
         .rep-ed-dlg-foot { justify-content:flex-end; }
 
         /* Area Admin → scheda Reperibilità: ingresso alla modalità ruota */
@@ -3198,6 +3201,7 @@
             loadNotificationHistory(); 
             calculateAmbulanceDates();
             renderTable();
+            setTimeout(() => { if (typeof pnRepStartup === 'function') pnRepStartup(); }, 2500);   // reperibili in permesso notte
             startLiveClock();
             // All'apertura l'app si posiziona subito sul giorno corrente, senza animazione,
             // così è già lì appena la tabella compare. Il riposizionamento successivo corregge
@@ -3937,6 +3941,8 @@
                     // nel file): serve conoscere la cella del giorno precedente per colorare anche
                     // il secondo giorno.
                     let prevCellInfo = (i > 1 && finalData[i - 1]) ? finalData[i - 1][d.idx] : null;
+                    // Permesso notte e reperibile lo stesso giorno: scritta rossa nella casella
+                    if (typeof pnRepAt === 'function' && pnRepAt(cellInfo, d, mName, dNum)) repBarHtml = `<div class="rep-pn-warn">IN PERMESSO NOTTE<br>NO REPERIBILITÀ</div>` + (repBarHtml || '');
                     td.innerHTML = formatCell(cellInfo, showDog, showAmbulance, vehicleTasks, repBarHtml, prevCellInfo, mName, dNum, repForceFor(d.name, mName, dNum));
                     // per la ruota reperibilità: giorno e autista della casella
                     if (MONTH_NUM[(mName || '').toString().toUpperCase().trim()]) {
@@ -7036,6 +7042,64 @@ async function deleteNote(id) {
     function repIsLive(iso) { const now = new Date(), a = repDateObj(iso); a.setHours(13, 0, 0, 0); const b = new Date(a); b.setDate(b.getDate() + 1); return now >= a && now < b; }
     function repTurnSlotKeys(x) { const n = repIsoAdd(x, 1); return [x + '_2', x + '_3', n + '_0', n + '_1'].filter(k => repIs2026(k.slice(0, 10))); }
 
+    // ── Permesso notte e reperibilità ──────────────────────────────────────
+    // Chi ha il permesso notte ("pn" nel file) un giorno non può fare la reperibilità del turno che
+    // parte quel giorno (13:00 › 13:00 del giorno dopo), né le fasce di quel turno ricevute da un
+    // collega. Avviso: scritta rossa nella casella, finestra all'apertura dell'app e finestra
+    // quando con la ruota si dà la reperibilità a chi è in permesso notte.
+    function pnRepAt(cellInfo, d, mName, dNum) {
+        if (!cellInfo || String(cellInfo.subV || '').trim().toUpperCase() !== 'PN') return null;
+        const mNum = MONTH_NUM[(mName || '').toString().toUpperCase().trim()]; if (!mNum) return null;
+        const iso = repIso(mNum, dNum), n = repIsoAdd(iso, 1), me = repN(d.name);
+        const slots = [[iso, 2], [iso, 3], [n, 0], [n, 1]].filter(([x, s]) => repN(repOcc(x, s)) === me).map(([x, s]) => REP_SLOTS_LBL[s]);
+        if (!slots.length) return null;
+        return { iso, name: d.name, tit: repN(repTit(iso)) === me, slots };
+    }
+    const REP_SLOTS_LBL = ['00-07', '07-13', '13-20', '20-00'];
+    // Tutti i casi nei giorni indicati (iso), o in tutto il calendario se non indicati.
+    function pnRepList(isoSet) {
+        const out = [];
+        if (typeof finalData === 'undefined' || !finalData || !finalData.length) return out;
+        for (let i = 1; i < finalData.length; i++) {
+            const row = finalData[i], mName = (row[0] && row[0].v || '').toString().toUpperCase().trim(), dNum = parseInt(row[1] && row[1].v);
+            const mNum = MONTH_NUM[mName]; if (!mNum || isNaN(dNum)) continue;
+            const iso = repIso(mNum, dNum); if (isoSet && !isoSet.has(iso)) continue;
+            drivers.forEach(d => { const c = pnRepAt(getEffectiveCellInfo(row, d, `${MONTH_MAP[mName]}-${dNum}`), d, mName, dNum); if (c) out.push(c); });
+        }
+        return out;
+    }
+    function pnRepText(c) {
+        const what = c.slots.length === 4 ? (c.tit ? 'è il reperibile dalle 13:00 per 24 ore' : 'copre tutte le fasce') : 'copre ' + (c.slots.length === 1 ? 'la fascia ' : 'le fasce ') + c.slots.join(', ');
+        return `${repDateLabel(c.iso, true)}: ${c.name} in permesso notte, non può fare la reperibilità (${what}).`;
+    }
+    // Ruota: dopo una modifica della reperibilità, controlla quel turno e quello del giorno prima.
+    function pnRepEditCheck(entries) {
+        try {
+            const days = new Set();
+            (entries || []).forEach(en => { const k = String(en.key || ''); const iso = k.length > 10 ? k.slice(0, 10) : k; if (!/^\d{4}-\d\d-\d\d$/.test(iso)) return; days.add(iso); days.add(repIsoAdd(iso, -1)); });
+            const list = pnRepList(days); if (!list.length) return;
+            setTimeout(() => repEdDialog(list.length === 1 ? 'Reperibile in permesso notte' : list.length + ' reperibili in permesso notte',
+                list.map(pnRepText).join('\n') + '\n\nScegli un altro reperibile oppure togli il permesso notte dal file.', [{ label: 'Ho capito', kind: 'primary', value: 'ok' }]), 250);
+        } catch (e) { console.warn('pnRep', e); }
+    }
+    // All'apertura: casi da oggi ai prossimi 60 giorni (una volta al giorno su ogni dispositivo,
+    // e di nuovo se ne compare uno nuovo).
+    function pnRepStartup(tries) {
+        try {
+            const who = document.getElementById('who-modal');   // aspetta che sia chiusa la scelta "Chi sei?"
+            if (who && getComputedStyle(who).display !== 'none' && (tries || 0) < 80) { setTimeout(() => pnRepStartup((tries || 0) + 1), 1500); return; }
+            const t = repTodayIso(), lim = repIsoAdd(t, 60), days = new Set();
+            for (let x = t; x <= lim; x = repIsoAdd(x, 1)) days.add(x);
+            const list = pnRepList(days); if (!list.length) return;
+            const sig = t + '#' + list.map(c => c.name + '|' + c.iso + '|' + c.slots.join(',')).join(';');
+            let seen = ''; try { seen = localStorage.getItem('pnrep_seen_v1') || ''; } catch (e) {}
+            if (seen === sig) return;
+            try { localStorage.setItem('pnrep_seen_v1', sig); } catch (e) {}
+            repEdDialog(list.length === 1 ? 'Reperibile in permesso notte' : list.length + ' reperibili in permesso notte',
+                list.map(pnRepText).join('\n') + '\n\nVa cambiata la reperibilità o il permesso.', [{ label: 'Ho capito', kind: 'primary', value: 'ok' }]);
+        } catch (e) { console.warn('pnRep', e); }
+    }
+
     // ── Modifiche in sospeso con Annulla / Ripeti ─────────────────────────
     // Voce di annullamento: { kind:'rep'|'repc', key, prev, next } con prev/next = null
     // (nessuna modifica in sospeso) oppure { v: valore }.
@@ -7092,6 +7156,7 @@ async function deleteNote(id) {
         if (!entries.length) { repRedraw(); return false; }
         repUndoStack.push({ entries }); repRedoStack = [];
         repRedraw(); repVib();
+        pnRepEditCheck(entries);
         if (msg) ccToast(msg);
         return true;
     }
